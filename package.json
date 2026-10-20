@@ -1,0 +1,10 @@
+{
+  "name": "orbyte-smart-defect-tracker",
+  "version": "1.0.0",
+  "private": true,
+  "description": "A human-in-the-loop supplier defect claims demo",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  }
+}
