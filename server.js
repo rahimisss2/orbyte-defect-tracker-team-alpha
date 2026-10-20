@@ -8,6 +8,13 @@ const ROOT = __dirname;
 const PUBLIC_DIR = path.join(ROOT, "public");
 const DB_FILE = path.join(ROOT, "synthetic_db.json");
 const MAX_BODY_BYTES = 100_000;
+let mutationQueue = Promise.resolve();
+
+function runMutation(task) {
+  const result = mutationQueue.then(task);
+  mutationQueue = result.catch(() => {});
+  return result;
+}
 
 const INITIAL_DATA = {
   suppliers: [
@@ -95,9 +102,7 @@ function createClaimLetter(supplier, quantity, notes, loss) {
     "",
     "Best regards,",
     "Manager, Orbyte Retail Hub Network",
-  ]
-    .filter((line) => line !== "")
-    .join("\n");
+  ].join("\n");
 }
 
 async function handleApi(request, response, url) {
@@ -119,8 +124,8 @@ async function handleApi(request, response, url) {
     if (!Number.isInteger(quantity) || quantity < 1 || quantity > 100_000) {
       return sendJson(response, 400, { error: "Quantity must be a whole number from 1 to 100,000." });
     }
-    if (notes.length > 5_000) {
-      return sendJson(response, 400, { error: "Incident notes must be 5,000 characters or fewer." });
+    if (!notes || notes.length > 5_000) {
+      return sendJson(response, 400, { error: "Incident notes must contain 1 to 5,000 characters." });
     }
 
     const loss = Number((quantity * supplier.cost).toFixed(2));
@@ -213,7 +218,11 @@ const server = http.createServer(async (request, response) => {
   const url = new URL(request.url, `http://${request.headers.host || "localhost"}`);
   try {
     if (url.pathname.startsWith("/api/")) {
-      await handleApi(request, response, url);
+      if (request.method === "POST") {
+        await runMutation(() => handleApi(request, response, url));
+      } else {
+        await handleApi(request, response, url);
+      }
     } else if (request.method === "GET" || request.method === "HEAD") {
       await serveStatic(response, url.pathname);
     } else {
@@ -231,6 +240,13 @@ const server = http.createServer(async (request, response) => {
   }
 });
 
-server.listen(PORT, "0.0.0.0", () => {
-  console.log(`Orbyte Smart-Defect Tracker listening on port ${PORT}`);
-});
+readDatabase()
+  .then(() => {
+    server.listen(PORT, "0.0.0.0", () => {
+      console.log(`Orbyte Smart-Defect Tracker listening on port ${PORT}`);
+    });
+  })
+  .catch((error) => {
+    console.error("Could not initialize the workspace database:", error);
+    process.exitCode = 1;
+  });

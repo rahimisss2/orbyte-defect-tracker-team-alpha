@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="theme-color" content="#f2f1e9">
     <title>Orbyte — Smart-Defect Tracker</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231c3330'/%3E%3Cpath d='M8 8h7v7H8zm9 0h7v7h-7zM8 17h7v7H8zm9 0h7v7h-7z' fill='%23e47b55'/%3E%3C/svg%3E">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -20,10 +21,10 @@
         </a>
         <div class="rail-label">OPERATIONS</div>
         <nav class="main-nav">
-          <button class="nav-link active" data-view="overview" type="button"><span class="nav-icon">◫</span><span>Control room</span><span class="nav-dot"></span></button>
-          <button class="nav-link" data-view="intake" type="button"><span class="nav-icon">＋</span><span>Log incident</span></button>
-          <button class="nav-link" data-view="review" type="button"><span class="nav-icon">◎</span><span>Manager review</span><span class="nav-count" id="pending-nav-count">0</span></button>
-          <button class="nav-link" data-view="audit" type="button"><span class="nav-icon">≡</span><span>Audit history</span></button>
+          <button class="nav-link active" data-view="overview" type="button" aria-label="Control room"><span class="nav-icon" aria-hidden="true">◫</span><span>Control room</span><span class="nav-dot"></span></button>
+          <button class="nav-link" data-view="intake" type="button" aria-label="Log incident"><span class="nav-icon" aria-hidden="true">＋</span><span>Log incident</span></button>
+          <button class="nav-link" data-view="review" type="button" aria-label="Manager review"><span class="nav-icon" aria-hidden="true">◎</span><span>Manager review</span><span class="nav-count" id="pending-nav-count">0</span></button>
+          <button class="nav-link" data-view="audit" type="button" aria-label="Audit history"><span class="nav-icon" aria-hidden="true">≡</span><span>Audit history</span></button>
         </nav>
         <div class="rail-bottom">
           <div class="shift-card">
@@ -94,7 +95,7 @@
                   <div class="form-row">
                     <div class="quantity-field">
                       <label class="field-label" for="quantity">Affected quantity <span>Required</span></label>
-                      <div class="input-with-suffix"><input id="quantity" name="quantity" type="number" min="1" step="1" placeholder="e.g. 6" required><span>units</span></div>
+                       <div class="input-with-suffix"><input id="quantity" name="quantity" type="number" min="1" max="100000" step="1" placeholder="e.g. 6" required><span>units</span></div>
                     </div>
                     <div class="estimated-field">
                       <span class="field-label">Estimated loss</span>
@@ -102,7 +103,7 @@
                     </div>
                   </div>
                   <label class="field-label" for="incident-notes">Raw incident notes <span>Required</span></label>
-                  <textarea id="incident-notes" name="notes" rows="3" required placeholder="Describe what happened in your own words…&#10;e.g. 6 crates arrived with cracked seals during unloading."></textarea>
+                   <textarea id="incident-notes" name="notes" rows="3" maxlength="5000" required placeholder="Describe what happened in your own words…&#10;e.g. 6 crates arrived with cracked seals during unloading."></textarea>
                   <div class="form-bottom"><span class="form-hint">Keep the original details. The manager can refine the claim letter.</span><button class="button button-accent" type="submit" id="submit-incident"><span>Submit incident</span><span class="button-arrow">↗</span></button></div>
                   <div class="form-message" id="intake-message" aria-live="polite"></div>
                 </form>

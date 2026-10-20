@@ -5,6 +5,7 @@
   const $ = (selector, root = document) => root.querySelector(selector);
   const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
   const formatRM = (amount) => `RM ${Number(amount || 0).toFixed(2)}`;
+  const claimLabel = (id) => `CLM-${String(id).slice(0, 8).toUpperCase()}`;
   const esc = (value = "") => String(value).replace(/[&<>"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[char]));
   const safeDate = (value) => {
     const date = new Date(value);
@@ -87,7 +88,7 @@
     const itemCell = `${esc(claim.supplier)}<span class="item-cell">${esc(claim.item)}</span>`;
     const action = withAction && claim.status === "pending_review" ? `<button class="row-action" type="button" data-review-id="${esc(claim.id)}">Review →</button>` : "";
     return `<tr>
-      <td><span class="claim-id">${esc(claim.id)}</span><span class="claim-date">${esc(safeDate(claim.createdAt))}</span></td>
+      <td><span class="claim-id" title="${esc(claim.id)}">${esc(claimLabel(claim.id))}</span><span class="claim-date">${esc(safeDate(claim.createdAt))}</span></td>
       <td><span class="supplier-cell">${itemCell}</span></td>
       <td>${esc(claim.quantity)} units</td>
       <td><span class="amount">${formatRM(claim.loss)}</span></td>
@@ -108,7 +109,7 @@
     const pending = getPending().slice(0, 4);
     const queue = $("#queue-list");
     queue.innerHTML = pending.length ? pending.map((claim) => `<button class="queue-item" type="button" data-review-id="${esc(claim.id)}">
-      <span><strong>${esc(claim.supplier)}</strong><small>${esc(claim.id)} · ${esc(claim.quantity)} units</small></span>
+      <span><strong>${esc(claim.supplier)}</strong><small>${esc(claimLabel(claim.id))} · ${esc(claim.quantity)} units</small></span>
       <span class="amount">${formatRM(claim.loss)}</span>
     </button>`).join("") : '<div class="queue-empty">All clear. No claims waiting for review.</div>';
   }
@@ -121,7 +122,7 @@
       return;
     }
     target.innerHTML = pending.map((claim) => `<article class="review-claim" data-claim="${esc(claim.id)}">
-      <div class="review-claim-head"><div><span class="claim-id">${esc(claim.id)}</span><span class="claim-date">Submitted ${esc(safeDate(claim.createdAt))}</span></div>${statusMarkup(claim)}</div>
+      <div class="review-claim-head"><div><span class="claim-id" title="${esc(claim.id)}">${esc(claimLabel(claim.id))}</span><span class="claim-date">Submitted ${esc(safeDate(claim.createdAt))}</span></div>${statusMarkup(claim)}</div>
       <div class="review-claim-grid">
         <div class="claim-facts">
           <div class="fact-row"><span>SUPPLIER</span><strong>${esc(claim.supplier)}</strong></div>
@@ -138,7 +139,7 @@
   function renderAudit() {
     const all = [...state.claims].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
     $("#audit-claims").innerHTML = all.map((claim) => `<tr>
-      <td><span class="claim-id">${esc(claim.id)}</span><span class="claim-date">${esc(safeDate(claim.createdAt))}</span></td>
+      <td><span class="claim-id" title="${esc(claim.id)}">${esc(claimLabel(claim.id))}</span><span class="claim-date">${esc(safeDate(claim.createdAt))}</span></td>
       <td><span class="supplier-cell">${esc(claim.supplier)}</span></td><td>${esc(claim.item)}</td><td>${esc(claim.quantity)}</td>
       <td><span class="amount">${formatRM(claim.loss)}</span></td><td>${statusMarkup(claim)}</td><td>${claim.authorizedBy ? esc(claim.authorizedBy) : '<span class="claim-date">—</span>'}</td>
     </tr>`).join("");
@@ -237,7 +238,7 @@
       state.selectedSupplier = "";
       updateSupplierDetail();
       message.className = "form-message success";
-      message.textContent = `Incident ${data.claim.id} submitted. It is now waiting for manager review.`;
+      message.textContent = `Incident ${claimLabel(data.claim.id)} submitted. It is now waiting for manager review.`;
       showToast("Incident submitted to the manager review queue.");
     } catch (error) {
       message.className = "form-message";
