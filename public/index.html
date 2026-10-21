@@ -21,10 +21,8 @@
         </a>
         <div class="rail-label">OPERATIONS</div>
         <nav class="main-nav">
-          <button class="nav-link active" data-view="overview" type="button" aria-label="Control room"><span class="nav-icon" aria-hidden="true">◫</span><span>Control room</span><span class="nav-dot"></span></button>
-          <button class="nav-link" data-view="intake" type="button" aria-label="Log incident"><span class="nav-icon" aria-hidden="true">＋</span><span>Log incident</span></button>
-          <button class="nav-link" data-view="review" type="button" aria-label="Manager review"><span class="nav-icon" aria-hidden="true">◎</span><span>Manager review</span><span class="nav-count" id="pending-nav-count">0</span></button>
-          <button class="nav-link" data-view="audit" type="button" aria-label="Audit history"><span class="nav-icon" aria-hidden="true">≡</span><span>Audit history</span></button>
+          <button class="nav-link active" data-view="intake" type="button" aria-label="Floor Worker Portal"><span class="nav-icon" aria-hidden="true">＋</span><span>Floor Worker Portal</span></button>
+          <button class="nav-link" data-view="review" type="button" aria-label="Manager Control Center"><span class="nav-icon" aria-hidden="true">◎</span><span>Manager Control Center</span></button>
         </nav>
         <div class="rail-bottom">
           <div class="shift-card">
@@ -37,26 +35,62 @@
 
       <main class="workspace">
         <header class="topbar">
-          <div class="breadcrumb"><span>Orbyte</span><i>/</i><strong id="crumb-current">Control room</strong></div>
+          <div class="breadcrumb"><span>Orbyte</span><i>/</i><strong id="crumb-current">Floor Worker Portal</strong></div>
           <div class="top-meta"><span class="live-pill"><span></span> LIVE WORKSPACE</span><span class="top-date" id="today-date"></span></div>
         </header>
 
         <div class="content-wrap">
           <section class="page-heading">
             <div>
-              <p class="eyebrow">RETAIL CLAIMS OPERATIONS <span class="eyebrow-line"></span> <span id="claim-count-label">0 RECORDS</span></p>
+              <p class="eyebrow">RETAIL CLAIMS OPERATIONS</p>
               <h1>Control <span>room.</span></h1>
               <p class="heading-sub">Delivery incidents, made reviewable. People stay in control.</p>
             </div>
-            <button class="button button-dark heading-action" type="button" data-jump="intake"><span class="button-plus">＋</span> Log an incident</button>
           </section>
 
           <div class="notice" role="note">
             <span class="notice-mark">i</span>
-            <p><strong>Demo authorization only.</strong> Authorization is recorded locally for demo purposes only. No email is actually sent and no external supplier invoice is held.</p>
+            <p><strong>Demo authorization only.</strong> No email is actually sent and no external supplier invoice is held. Tabs separate the workflow only; they do not enforce role-based access.</p>
             <span class="notice-tag">HUMAN-IN-THE-LOOP</span>
           </div>
 
+          <div class="portal-tabs" role="tablist" aria-label="Choose your portal">
+            <button class="portal-tab" id="worker-tab" role="tab" aria-selected="true" aria-controls="worker-tabpanel" tabindex="0" data-view="intake" type="button">👷 Floor Worker Portal</button>
+            <button class="portal-tab" id="manager-tab" role="tab" aria-selected="false" aria-controls="manager-tabpanel" tabindex="-1" data-view="review" type="button">📋 Manager Control Center</button>
+          </div>
+
+          <section id="worker-tabpanel" class="portal-panel" role="tabpanel" aria-labelledby="worker-tab">
+            <div class="portal-heading"><p>Record delivery issues for a manager to review.</p><button class="button button-dark" type="button" data-jump="intake"><span class="button-plus" aria-hidden="true">+</span> Log an Incident</button></div>
+            <section class="panel incident-panel" id="intake-panel">
+              <div class="panel-heading">
+                <div class="panel-title-group"><span class="section-index">01</span><div><p class="eyebrow">FLOOR WORKER PORTAL</p><h2>Log a delivery incident</h2></div></div>
+                <span class="step-chip"><span></span> STEP 01 / 03</span>
+              </div>
+              <p class="panel-intro">Capture what arrived damaged or short. A manager will review the resulting claim before it is authorized.</p>
+              <form id="incident-form">
+                <label class="field-label" for="supplier-select">Supplier <span>Required</span></label>
+                <div class="select-wrap"><select id="supplier-select" name="supplier" required disabled><option value="">Loading suppliers…</option></select><span class="select-chevron">⌄</span></div>
+                <div class="supplier-detail" id="supplier-detail"><span class="detail-indicator"></span><span id="supplier-item">Supplier item details appear here</span><span id="supplier-cost" class="mono"></span></div>
+                <div class="form-row">
+                  <div class="quantity-field">
+                    <label class="field-label" for="quantity">Affected quantity <span>Required</span></label>
+                    <div class="input-with-suffix"><input id="quantity" name="quantity" type="number" min="1" max="100000" step="1" placeholder="e.g. 6" required><span>units</span></div>
+                  </div>
+                  <div class="estimated-field">
+                    <span class="field-label">Estimated loss</span>
+                    <div class="estimate-value" id="estimate-value">RM <span>0.00</span></div>
+                  </div>
+                </div>
+                <label class="field-label" for="incident-notes">Raw incident notes <span>Required</span></label>
+                <textarea id="incident-notes" name="notes" rows="3" maxlength="5000" required placeholder="Describe what happened in your own words…&#10;e.g. 6 crates arrived with cracked seals during unloading."></textarea>
+                <div class="form-bottom"><span class="form-hint">Keep the original details. The manager can refine the claim letter.</span><button class="button button-accent" type="submit" id="submit-incident"><span>Submit incident</span><span class="button-arrow">↗</span></button></div>
+                <div class="form-message" id="intake-message" aria-live="polite"></div>
+              </form>
+            </section>
+          </section>
+
+          <section id="manager-tabpanel" class="portal-panel" role="tabpanel" aria-labelledby="manager-tab" hidden>
+          <div class="portal-heading"><p>Review incidents and record manager authorization.</p><span class="eyebrow"><span id="claim-count-label">0 RECORDS</span> · <span id="pending-nav-count">0</span> PENDING</span></div>
           <div class="status-strip" aria-label="Claims summary">
             <article class="stat-card stat-total">
               <div class="stat-top"><span>ALL CLAIMS</span><span class="stat-symbol">↗</span></div>
@@ -82,33 +116,6 @@
 
           <div class="main-grid">
             <div class="primary-column">
-              <section class="panel incident-panel" id="intake-panel">
-                <div class="panel-heading">
-                  <div class="panel-title-group"><span class="section-index">01</span><div><p class="eyebrow">FLOOR WORKER PORTAL</p><h2>Log a delivery incident</h2></div></div>
-                  <span class="step-chip"><span></span> STEP 01 / 03</span>
-                </div>
-                <p class="panel-intro">Capture what arrived damaged or short. A manager will review the resulting claim before it is authorized.</p>
-                <form id="incident-form">
-                  <label class="field-label" for="supplier-select">Supplier <span>Required</span></label>
-                  <div class="select-wrap"><select id="supplier-select" name="supplier" required disabled><option value="">Loading suppliers…</option></select><span class="select-chevron">⌄</span></div>
-                  <div class="supplier-detail" id="supplier-detail"><span class="detail-indicator"></span><span id="supplier-item">Supplier item details appear here</span><span id="supplier-cost" class="mono"></span></div>
-                  <div class="form-row">
-                    <div class="quantity-field">
-                      <label class="field-label" for="quantity">Affected quantity <span>Required</span></label>
-                       <div class="input-with-suffix"><input id="quantity" name="quantity" type="number" min="1" max="100000" step="1" placeholder="e.g. 6" required><span>units</span></div>
-                    </div>
-                    <div class="estimated-field">
-                      <span class="field-label">Estimated loss</span>
-                      <div class="estimate-value" id="estimate-value">RM <span>0.00</span></div>
-                    </div>
-                  </div>
-                  <label class="field-label" for="incident-notes">Raw incident notes <span>Required</span></label>
-                   <textarea id="incident-notes" name="notes" rows="3" maxlength="5000" required placeholder="Describe what happened in your own words…&#10;e.g. 6 crates arrived with cracked seals during unloading."></textarea>
-                  <div class="form-bottom"><span class="form-hint">Keep the original details. The manager can refine the claim letter.</span><button class="button button-accent" type="submit" id="submit-incident"><span>Submit incident</span><span class="button-arrow">↗</span></button></div>
-                  <div class="form-message" id="intake-message" aria-live="polite"></div>
-                </form>
-              </section>
-
               <section class="panel claims-panel">
                 <div class="panel-heading claims-heading">
                   <div class="panel-title-group"><span class="section-index">02</span><div><p class="eyebrow">LIVE QUEUE</p><h2>Recent incidents</h2></div></div>
@@ -142,16 +149,17 @@
             </aside>
           </div>
 
-          <section class="panel workspace-section hidden" id="review-view">
+          <section class="panel workspace-section" id="review-view">
             <div class="section-page-heading"><div><p class="eyebrow">MANAGER & ACCOUNTING CONTROL CENTER</p><h2>Review & authorization</h2><p>Inspect the incident, adjust the draft, then record a manager decision.</p></div><span class="step-chip"><span></span> HUMAN APPROVAL REQUIRED</span></div>
             <div id="review-content"></div>
           </section>
 
-          <section class="panel workspace-section hidden" id="audit-view">
+          <section class="panel workspace-section" id="audit-view">
             <div class="section-page-heading"><div><p class="eyebrow">TRACEABLE DECISIONS</p><h2>Audit history</h2><p>Pending and demo-authorized claims, with the value and decision record.</p></div><span class="audit-stamp">LOCAL WORKSPACE RECORDS</span></div>
             <div class="audit-toolbar"><span id="audit-total">0 RECORDS</span><div class="audit-legend"><span><i class="status-dot amber"></i> Pending review</span><span><i class="status-dot green"></i> Authorized · demo</span></div></div>
             <div class="table-scroll audit-table-scroll"><table><thead><tr><th>CLAIM ID / CREATED</th><th>SUPPLIER</th><th>ITEM</th><th>QTY</th><th>CLAIMED VALUE</th><th>DECISION</th><th>AUTHORIZED BY</th></tr></thead><tbody id="audit-claims"></tbody></table></div>
             <div class="empty-state hidden" id="audit-empty"><div class="empty-graphic"><span>LOG</span><i></i><i></i></div><strong>Nothing to audit yet</strong><p>Submitted and authorized claims will be recorded here.</p><button type="button" class="text-button" data-jump="intake">Log an incident <span>↗</span></button></div>
+          </section>
           </section>
 
           <footer class="page-footer"><span>ORBYTE SMART-DEFECT TRACKER</span><span>PRECISION IN EVERY HANDOFF <i>✳</i></span><span id="footer-time"></span></footer>

@@ -237,6 +237,22 @@ td:first-child, th:first-child { padding-left: 20px; }
 .review-empty strong { display: block; font-size: 13px; color: #476354; }
 .review-empty p { color: #909c92; font-size: 10px; }
 .hidden { display: none !important; }
+[hidden] { display: none !important; }
+.portal-tabs { display: flex; gap: 8px; border-bottom: 1px solid var(--line-strong); margin: 22px 0 0; scroll-margin-top: 16px; }
+.portal-tab { border: 0; border-bottom: 3px solid transparent; padding: 15px 18px; background: transparent; color: var(--ink-soft); font-weight: 700; font-size: 13px; }
+.portal-tab:hover { background: var(--paper-deep); }
+.portal-tab[aria-selected="true"] { border-bottom-color: var(--accent); color: var(--accent-deep); background: var(--accent-pale); }
+.portal-heading { display: flex; gap: 12px; justify-content: space-between; align-items: center; padding: 20px 0; }
+.portal-heading p { margin: 0; color: var(--ink-soft); line-height: 1.6; font-size: 12px; }
+.portal-heading .eyebrow { margin: 0; white-space: nowrap; }
+#worker-tabpanel .incident-panel { max-width: 920px; }
+#intake-panel, #audit-view { scroll-margin-top: 20px; }
+.main-nav { grid-template-columns: 1fr; }
+@media (max-width: 580px) {
+  .portal-tab { flex: 1; padding: 13px 8px; font-size: 11px; }
+  .portal-heading { align-items: flex-start; flex-direction: column; }
+  .rail .main-nav { grid-template-columns: repeat(2, 1fr); }
+}
 .page-footer { display: flex; justify-content: space-between; padding: 24px 0 3px; color: #a0a9a0; font: 8px var(--mono); letter-spacing: .07em; }
 .page-footer i { color: #ce7958; font-style: normal; padding-left: 4px; }
 .toast { position: fixed; z-index: 20; right: 22px; bottom: 22px; max-width: min(410px, calc(100vw - 32px)); padding: 13px 16px; border-radius: 7px; background: #29453c; color: #f4f2e7; box-shadow: 0 12px 35px rgba(21,43,36,.2); font-size: 11px; opacity: 0; transform: translateY(8px); pointer-events: none; transition: opacity .2s ease, transform .2s ease; }

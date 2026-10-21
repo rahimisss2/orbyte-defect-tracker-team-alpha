@@ -1,7 +1,7 @@
 (() => {
   "use strict";
 
-  const state = { suppliers: [], claims: [], view: "overview", selectedSupplier: "" };
+  const state = { suppliers: [], claims: [], view: "intake", selectedSupplier: "" };
   const $ = (selector, root = document) => root.querySelector(selector);
   const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
   const formatRM = (amount) => `RM ${Number(amount || 0).toFixed(2)}`;
@@ -159,21 +159,21 @@
     const validViews = ["overview", "intake", "review", "audit"];
     if (!validViews.includes(view)) return;
     state.view = view;
-    $$(".nav-link").forEach((button) => button.classList.toggle("active", button.dataset.view === view || (view === "intake" && button.dataset.view === "overview")));
-    $("#crumb-current").textContent = ({ overview: "Control room", intake: "Log incident", review: "Manager review", audit: "Audit history" })[view];
-    $(".main-grid").classList.toggle("hidden", view !== "overview");
-    $(".status-strip").classList.toggle("hidden", view !== "overview");
-    $(".notice").classList.toggle("hidden", view !== "overview");
-    $(".page-heading").classList.toggle("hidden", view !== "overview");
-    $("#review-view").classList.toggle("hidden", view !== "review");
-    $("#audit-view").classList.toggle("hidden", view !== "audit");
-    if (view === "intake") {
-      $(".main-grid").classList.remove("hidden");
-      $(".status-strip").classList.add("hidden");
-      $(".notice").classList.remove("hidden");
-      $(".page-heading").classList.remove("hidden");
+    const isManager = view === "review" || view === "audit";
+    $("#worker-tabpanel").hidden = isManager;
+    $("#manager-tabpanel").hidden = !isManager;
+    $$(".portal-tab").forEach((button) => {
+      const selected = (button.dataset.view === "review") === isManager;
+      button.setAttribute("aria-selected", String(selected));
+      button.tabIndex = selected ? 0 : -1;
+    });
+    $$(".nav-link").forEach((button) => button.classList.toggle("active", (button.dataset.view === "review") === isManager));
+    $("#crumb-current").textContent = isManager ? "Manager Control Center" : "Floor Worker Portal";
+    if (view === "audit") {
+      $("#audit-view").scrollIntoView({ behavior: "smooth", block: "start" });
+    } else if (view === "intake") {
       $("#intake-panel").scrollIntoView({ behavior: "smooth", block: "start" });
-    } else if (view === "review" || view === "audit") {
+    } else {
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
   }
@@ -295,6 +295,9 @@
     const nav = event.target.closest("[data-view]");
     if (nav) {
       goTo(nav.dataset.view);
+      if (nav.classList.contains("portal-tab")) {
+        $(".portal-tabs").scrollIntoView({ behavior: "smooth", block: "start" });
+      }
       return;
     }
     const review = event.target.closest("[data-review-id]");
@@ -310,6 +313,21 @@
       return;
     }
     if (event.target.closest("[data-retry]")) loadBootstrap();
+  });
+
+  $(".portal-tabs").addEventListener("keydown", (event) => {
+    const tabs = $$(".portal-tab");
+    const index = tabs.indexOf(event.target);
+    if (index === -1) return;
+    let next;
+    if (event.key === "ArrowRight") next = (index + 1) % tabs.length;
+    else if (event.key === "ArrowLeft") next = (index - 1 + tabs.length) % tabs.length;
+    else if (event.key === "Home") next = 0;
+    else if (event.key === "End") next = tabs.length - 1;
+    else return;
+    event.preventDefault();
+    tabs[next].focus();
+    tabs[next].click();
   });
 
   $("#supplier-select").addEventListener("change", (event) => {
