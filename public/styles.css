@@ -485,3 +485,38 @@ td:first-child, th:first-child { padding-left: 20px; }
   .page-footer span:nth-child(2) { display: none; }
 }
 @media (min-width: 1500px) { .content-wrap { padding-left: 54px; padding-right: 54px; } }
+
+/* Control room summary: balanced cards and a resilient action row. */
+#overview-page .portal-heading { flex-wrap: wrap; gap: 10px 16px; }
+#overview-page .portal-heading p { flex: 1 1 240px; min-width: 0; }
+#overview-page .portal-heading #claim-count-label { flex: 0 0 auto; }
+#overview-page .portal-heading .button { flex: 0 0 auto; white-space: nowrap; }
+#overview-page .status-strip { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 13px; }
+#overview-page .stat-card {
+  display: grid;
+  grid-template-rows: minmax(2.9em, auto) auto 1fr;
+  min-width: 0;
+  min-height: 120px;
+  padding: 15px;
+}
+#overview-page .stat-top { align-items: flex-start; font-size: 11px; line-height: 1.45; }
+#overview-page .stat-top > :first-child { flex: 1 1 auto; min-width: 0; overflow-wrap: anywhere; }
+#overview-page .stat-top > :last-child { flex: 0 0 auto; }
+#overview-page .stat-number {
+  margin-top: 10px;
+  font-size: clamp(22px, 2.2vw, 32px);
+  line-height: 1.1;
+  letter-spacing: -.04em;
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+#overview-page .stat-number.stat-money { font-size: clamp(22px, 2.2vw, 32px); }
+#overview-page .stat-foot { align-self: end; margin-top: 8px; font-size: 12px; line-height: 1.45; overflow-wrap: anywhere; }
+@media (max-width: 1120px) {
+  #overview-page .status-strip { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 480px) {
+  #overview-page .status-strip { grid-template-columns: minmax(0, 1fr); }
+  #overview-page .portal-heading { align-items: center; }
+  #overview-page .portal-heading p { flex-basis: 100%; }
+}
