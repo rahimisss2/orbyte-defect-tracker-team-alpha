@@ -123,13 +123,13 @@ except (OSError, ValueError) as error:
 
 page = st.navigation({
     "OPERATIONS": [
-        st.Page("screens/overview.py", title="Control room", icon=":material/dashboard:", default=True),
-        st.Page("screens/intake.py", title="Log incident", icon=":material/add:", url_path="intake"),
-        st.Page("screens/audit.py", title="Audit history", icon=":material/list_alt:", url_path="audit"),
+        st.Page("screens/control_room.py", title="Control room", icon=":material/dashboard:", default=True),
+        st.Page("screens/log_incident.py", title="Log incident", icon=":material/add:", url_path="intake"),
+        st.Page("screens/audit_history.py", title="Audit history", icon=":material/list_alt:", url_path="audit"),
     ],
     "MANAGER SECTION": [
-        st.Page("screens/manager.py", title="Manager dashboard", icon=":material/trending_up:", url_path="manager"),
-        st.Page("screens/review.py", title="Review & authorize", icon=":material/task_alt:", url_path="review"),
+        st.Page("screens/manager_dashboard.py", title="Manager dashboard", icon=":material/trending_up:", url_path="manager"),
+        st.Page("screens/review_authorize.py", title="Review & authorize", icon=":material/task_alt:", url_path="review"),
     ],
 }, position="hidden")
 

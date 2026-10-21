@@ -37,7 +37,7 @@ def control_room():
     st.caption("A high-level overview of delivery incidents and claim activity.")
     st.write("All operations staff can view the current system summary.")
     if st.button("Log an Incident", type="primary", icon=":material/add:"):
-        st.switch_page("screens/intake.py")
+        st.switch_page("screens/log_incident.py")
     metric_cards([
         ("ALL CLAIMS", f"{stats['total_count']:02}", "Incidents in this workspace"),
         ("AWAITING REVIEW", f"{stats['pending_count']:02}", "Active pending discrepancies"),
@@ -107,7 +107,7 @@ def manager_dashboard():
     stats = summarize(st.session_state["database"]["claims"])
     st.caption("Financial exposure and active discrepancy counts, calculated from the same claim records.")
     if st.button("Review & Authorisation", type="primary", icon=":material/arrow_outward:"):
-        st.switch_page("screens/review.py")
+        st.switch_page("screens/review_authorize.py")
     metric_cards([
         ("TOTAL CASH LEAKS", rm(stats["total_value"]), "Recorded defect losses across all claims"),
         ("PENDING EXPOSURE", rm(stats["pending_value"]), "Losses awaiting manager authorization"),
@@ -144,7 +144,7 @@ def review_authorize():
         st.success("Review queue is clear.")
         st.caption("New floor incidents will appear here before any decision is recorded.")
         if st.button("Log an incident", icon=":material/add:"):
-            st.switch_page("screens/intake.py")
+            st.switch_page("screens/log_incident.py")
         return
     st.subheader("Pending discrepancies")
     for claim in pending:
@@ -186,7 +186,7 @@ def audit_history():
     if not claims:
         st.info("Nothing to audit yet. Submitted and authorized claims will be recorded here.")
         if st.button("Log an incident", icon=":material/add:"):
-            st.switch_page("screens/intake.py")
+            st.switch_page("screens/log_incident.py")
         return
     rows = [{
         "Claim ID": claim_label(claim["id"]),

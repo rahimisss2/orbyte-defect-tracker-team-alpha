@@ -108,20 +108,41 @@ class StreamlitTests(IsolatedDatabase):
             app.button(key="nav_overview").click().run()
             self.assertEqual(app.title[0].value, "Control room")
             self.assertEqual(sleep.call_count - before, 20)
-            for screen, title in [
-                ("intake", "Log incident"),
-                ("audit", "Audit history"),
-                ("manager", "Manager dashboard"),
-                ("review", "Review & authorize"),
-                ("overview", "Control room"),
+            for screen, filename, title in [
+                ("intake", "log_incident", "Log incident"),
+                ("audit", "audit_history", "Audit history"),
+                ("manager", "manager_dashboard", "Manager dashboard"),
+                ("review", "review_authorize", "Review & authorize"),
+                ("overview", "control_room", "Control room"),
             ]:
+                section = "manager" if screen in ("manager", "review") else "operations"
+                app.button(key=f"section_{section}").click().run()
                 before = sleep.call_count
                 app.button(key=f"nav_{screen}").click().run()
                 self.assertFalse(app.exception)
                 self.assertEqual(app.title[0].value, title)
                 self.assertEqual(sleep.call_count - before, 20)
-                app.switch_page(f"screens/{screen}.py").run()
+                app.switch_page(f"screens/{filename}.py").run()
             self.assertEqual(database.read_database()["claims"], [])
+
+    def test_section_switch_shows_only_related_pages_without_leaving_current_page(self):
+        app = self.app()
+        def visible_page_buttons():
+            return {button.key for button in app.button if button.key and button.key.startswith("nav_")}
+        self.assertEqual(visible_page_buttons(), {"nav_overview", "nav_intake", "nav_audit"})
+        app.button(key="section_manager").click().run()
+        self.assertEqual(visible_page_buttons(), {"nav_manager", "nav_review"})
+        self.assertEqual(app.title[0].value, "Control room")
+        app.run()
+        self.assertEqual(visible_page_buttons(), {"nav_manager", "nav_review"})
+        app.button(key="nav_manager").click().run()
+        self.assertEqual(app.title[0].value, "Manager dashboard")
+        app.switch_page("screens/manager_dashboard.py").run()
+        app.button(key="section_operations").click().run()
+        self.assertEqual(visible_page_buttons(), {"nav_overview", "nav_intake", "nav_audit"})
+        self.assertEqual(app.title[0].value, "Manager dashboard")
+        app.switch_page("screens/review_authorize.py").run()
+        self.assertEqual(visible_page_buttons(), {"nav_manager", "nav_review"})
 
     def app(self):
         app = AppTest.from_file(str(ROOT / "src/main.py"), default_timeout=20).run()
@@ -144,10 +165,10 @@ class StreamlitTests(IsolatedDatabase):
         app.number_input(key="incident_quantity").set_value(3).run()
         app.text_area(key="incident_notes").input("Three KG damaged during unloading.").run()
         self.assertEqual(app.metric[0].value, "RM 25.50")
-        app.switch_page("screens/manager.py").run()
+        app.switch_page("screens/manager_dashboard.py").run()
         self.assertEqual(app.title[0].value, "Manager dashboard")
         self.assertEqual(len(app.metric), 4)
-        app.switch_page("screens/intake.py").run()
+        app.switch_page("screens/log_incident.py").run()
         self.assertEqual(app.number_input(key="incident_quantity").value, 3)
         self.assertEqual(app.text_area(key="incident_notes").value, "Three KG damaged during unloading.")
         self.button(app, "Submit incident").click().run()
@@ -156,26 +177,26 @@ class StreamlitTests(IsolatedDatabase):
         self.assertIsNone(app.number_input(key="incident_quantity").value)
         self.assertEqual(app.text_area(key="incident_notes").value, "")
         claim = database.read_database()["claims"][0]
-        app.switch_page("screens/overview.py").run()
+        app.switch_page("screens/control_room.py").run()
         self.assertEqual(app.metric[0].value, "01")
         self.assertEqual(app.metric[1].value, "01")
         self.assertEqual(app.metric[3].value, "RM 25.50")
-        app.switch_page("screens/manager.py").run()
+        app.switch_page("screens/manager_dashboard.py").run()
         self.assertEqual(app.metric[1].value, "RM 25.50")
         app.button(key="nav_review").click().run()
         self.assertEqual(app.title[0].value, "Review & authorize")
         self.assertEqual(len(app.metric), 0)
         # Synchronize AppTest's last explicit page request after a shortcut
         # changes the page. Browser navigation maintains this automatically.
-        app.switch_page("screens/review.py").run()
+        app.switch_page("screens/review_authorize.py").run()
         letter = claim["letter"] + "\nReviewed by test manager."
         app.text_area(key=f"letter_{claim['id']}").input(letter).run()
         self.button(app, "Authorize claim").click().run()
         self.assertTrue(app.error)
         self.assertEqual(database.read_database()["claims"][0]["status"], "pending_review")
-        app.switch_page("screens/audit.py").run()
+        app.switch_page("screens/audit_history.py").run()
         self.assertEqual(len(app.dataframe[0].value), 1)
-        app.switch_page("screens/review.py").run()
+        app.switch_page("screens/review_authorize.py").run()
         self.assertEqual(app.text_area(key=f"letter_{claim['id']}").value, letter)
         app.text_input(key=f"signature_{claim['id']}").input("Test Manager").run()
         self.button(app, "Authorize claim").click().run()
@@ -184,19 +205,19 @@ class StreamlitTests(IsolatedDatabase):
         saved = database.read_database()["claims"][0]
         self.assertEqual(saved["finalLetter"], letter)
         self.assertEqual(saved["authorizedBy"], "Test Manager")
-        app.switch_page("screens/manager.py").run()
+        app.switch_page("screens/manager_dashboard.py").run()
         self.assertEqual([metric.value for metric in app.metric], ["RM 25.50", "RM 0.00", "RM 25.50", "00"])
-        app.switch_page("screens/audit.py").run()
+        app.switch_page("screens/audit_history.py").run()
         self.assertEqual(app.dataframe[0].value.iloc[0]["Authorized by"], "Test Manager")
         self.assertEqual(app.dataframe[0].value.iloc[0]["Decision"], "Authorized · demo")
         self.assertFalse(app.exception)
 
     def test_empty_review_and_audit_routes(self):
         app = self.app()
-        app.switch_page("screens/review.py").run()
+        app.switch_page("screens/review_authorize.py").run()
         self.assertEqual(len(app.text_input), 0)
         self.assertTrue(any("queue is clear" in item.value for item in app.success))
-        app.switch_page("screens/audit.py").run()
+        app.switch_page("screens/audit_history.py").run()
         self.assertEqual(len(app.dataframe), 0)
         self.button(app, "Log an incident").click().run()
         self.assertEqual(app.title[0].value, "Log incident")

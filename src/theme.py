@@ -149,7 +149,7 @@ def apply_theme() -> None:
           letter-spacing: .13em;
         }
 
-        /* Premium native top navigation cards. */
+        /* Premium native top navigation and section selector. */
         .st-key-top-navigation {
           margin: .3rem 0 1.15rem;
           padding: 1rem;
@@ -160,18 +160,78 @@ def apply_theme() -> None:
             linear-gradient(135deg, rgba(16, 35, 49, .82), rgba(21, 34, 50, .72));
           box-shadow: 0 16px 38px rgba(3, 11, 19, .2), inset 0 1px rgba(220, 248, 246, .035);
         }
+        .st-key-navigation-sections {
+          margin: .15rem 0 1rem;
+          padding: .38rem;
+          border: 1px solid rgba(104, 156, 164, .3);
+          border-radius: 11px;
+          background:
+            radial-gradient(ellipse at 50% 0%, rgba(66, 194, 178, .12), transparent 70%),
+            linear-gradient(135deg, rgba(12, 29, 43, .92), rgba(24, 43, 57, .9));
+          box-shadow: inset 0 1px rgba(220, 248, 246, .035), 0 8px 22px rgba(3, 11, 19, .12);
+        }
+        .st-key-navigation-sections [data-testid="stHorizontalBlock"] {
+          display: grid;
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+          gap: .45rem;
+        }
+        .st-key-navigation-sections [data-testid="stColumn"] {
+          width: 100% !important;
+          min-width: 0 !important;
+        }
+        .st-key-navigation-sections [data-testid="stButton"] button {
+          min-height: 2.9rem;
+          border-radius: 8px;
+          text-align: center;
+          letter-spacing: .055em;
+          font-size: .72rem;
+          font-weight: 800;
+        }
+        .st-key-navigation-sections [data-testid="stButton"] button[kind="primary"] {
+          color: #062821;
+          border-color: #70d8c9;
+          background: linear-gradient(135deg, #70d8c9, #35a998);
+          box-shadow: inset 0 1px rgba(239, 255, 251, .25), 0 4px 12px rgba(9, 73, 69, .2);
+        }
+        .st-key-navigation-sections [data-testid="stButton"] button[kind="primary"] p {
+          color: #062821 !important;
+        }
+        .st-key-navigation-sections [data-testid="stButton"] button[kind="secondary"] {
+          color: #c1d5d8;
+          border-color: transparent;
+          background: rgba(18, 39, 53, .58);
+        }
+        .st-key-navigation-sections [data-testid="stButton"] button[kind="secondary"] p {
+          color: #c1d5d8 !important;
+        }
+        .st-key-navigation-sections [data-testid="stButton"] button[kind="secondary"]:hover {
+          color: #e6f6f3;
+          border-color: rgba(105, 205, 192, .45);
+          background: rgba(38, 77, 83, .62);
+        }
         .st-key-operations-nav [data-testid="stHorizontalBlock"] {
           display: grid;
           grid-template-columns: repeat(3, minmax(0, 1fr));
+          gap: .85rem;
+        }
+        .st-key-manager-nav [data-testid="stHorizontalBlock"] {
+          display: grid;
+          grid-template-columns: repeat(2, minmax(0, 1fr));
           gap: .85rem;
         }
         .st-key-operations-nav [data-testid="stColumn"] {
           width: 100% !important;
           min-width: 0 !important;
         }
+        .st-key-manager-nav [data-testid="stColumn"] {
+          width: 100% !important;
+          min-width: 0 !important;
+        }
         .st-key-nav-card-overview,
         .st-key-nav-card-intake,
-        .st-key-nav-card-audit {
+        .st-key-nav-card-audit,
+        .st-key-nav-card-manager,
+        .st-key-nav-card-review {
           height: 100%;
           min-height: 174px;
           padding: .95rem;
@@ -184,16 +244,22 @@ def apply_theme() -> None:
         }
         .st-key-nav-card-intake { animation-delay: .07s; }
         .st-key-nav-card-audit { animation-delay: .14s; }
+        .st-key-nav-card-manager { animation-delay: .07s; }
+        .st-key-nav-card-review { animation-delay: .14s; }
         .st-key-nav-card-overview:hover,
         .st-key-nav-card-intake:hover,
-        .st-key-nav-card-audit:hover {
+        .st-key-nav-card-audit:hover,
+        .st-key-nav-card-manager:hover,
+        .st-key-nav-card-review:hover {
           transform: translateY(-3px);
           border-color: rgba(105, 205, 192, .62);
           box-shadow: 0 17px 31px rgba(3, 11, 19, .29), inset 0 1px rgba(222, 246, 245, .08);
         }
         .st-key-nav-card-overview:has(button[kind="primary"]),
         .st-key-nav-card-intake:has(button[kind="primary"]),
-        .st-key-nav-card-audit:has(button[kind="primary"]) {
+        .st-key-nav-card-audit:has(button[kind="primary"]),
+        .st-key-nav-card-manager:has(button[kind="primary"]),
+        .st-key-nav-card-review:has(button[kind="primary"]) {
           border-color: rgba(93, 205, 190, .72);
           background:
             radial-gradient(ellipse at 100% 0%, rgba(66, 194, 178, .14), transparent 48%),
@@ -215,32 +281,46 @@ def apply_theme() -> None:
         }
         .st-key-nav-card-overview [data-testid="stCaptionContainer"],
         .st-key-nav-card-intake [data-testid="stCaptionContainer"],
-        .st-key-nav-card-audit [data-testid="stCaptionContainer"] {
+        .st-key-nav-card-audit [data-testid="stCaptionContainer"],
+        .st-key-nav-card-manager [data-testid="stCaptionContainer"],
+        .st-key-nav-card-review [data-testid="stCaptionContainer"] {
           color: #aec3c8;
           font-size: .72rem;
           line-height: 1.45;
         }
         .st-key-nav-card-overview [data-testid="stButton"] button,
         .st-key-nav-card-intake [data-testid="stButton"] button,
-        .st-key-nav-card-audit [data-testid="stButton"] button {
+        .st-key-nav-card-audit [data-testid="stButton"] button,
+        .st-key-nav-card-manager [data-testid="stButton"] button,
+        .st-key-nav-card-review [data-testid="stButton"] button {
           min-height: 2.7rem;
           text-align: left;
+          white-space: normal;
         }
         .st-key-nav-card-overview [data-testid="stButton"] button[kind="secondary"],
         .st-key-nav-card-intake [data-testid="stButton"] button[kind="secondary"],
-        .st-key-nav-card-audit [data-testid="stButton"] button[kind="secondary"] {
+        .st-key-nav-card-audit [data-testid="stButton"] button[kind="secondary"],
+        .st-key-nav-card-manager [data-testid="stButton"] button[kind="secondary"],
+        .st-key-nav-card-review [data-testid="stButton"] button[kind="secondary"] {
           color: #e1ecee;
           border-color: rgba(127, 163, 174, .32);
           background: rgba(14, 31, 45, .55);
         }
         .st-key-nav-card-overview [data-testid="stButton"] button[kind="secondary"] p,
         .st-key-nav-card-intake [data-testid="stButton"] button[kind="secondary"] p,
-        .st-key-nav-card-audit [data-testid="stButton"] button[kind="secondary"] p {
+        .st-key-nav-card-audit [data-testid="stButton"] button[kind="secondary"] p,
+        .st-key-nav-card-manager [data-testid="stButton"] button[kind="secondary"] p,
+        .st-key-nav-card-review [data-testid="stButton"] button[kind="secondary"] p {
           color: #e1ecee !important;
+          white-space: normal !important;
+          overflow-wrap: anywhere;
+          text-overflow: clip;
         }
         .st-key-nav-card-overview [data-testid="stButton"] button[kind="secondary"]:hover,
         .st-key-nav-card-intake [data-testid="stButton"] button[kind="secondary"]:hover,
-        .st-key-nav-card-audit [data-testid="stButton"] button[kind="secondary"]:hover {
+        .st-key-nav-card-audit [data-testid="stButton"] button[kind="secondary"]:hover,
+        .st-key-nav-card-manager [data-testid="stButton"] button[kind="secondary"]:hover,
+        .st-key-nav-card-review [data-testid="stButton"] button[kind="secondary"]:hover {
           border-color: rgba(105, 205, 192, .7);
           background: rgba(38, 77, 83, .72);
         }
@@ -529,11 +609,34 @@ def apply_theme() -> None:
             grid-template-columns: minmax(0, 1fr);
             gap: .65rem;
           }
+          .st-key-manager-nav [data-testid="stHorizontalBlock"] { gap: .5rem; }
           .st-key-nav-card-overview,
           .st-key-nav-card-intake,
           .st-key-nav-card-audit {
             min-height: 0;
             padding: .8rem;
+          }
+          .st-key-nav-card-manager,
+          .st-key-nav-card-review {
+            min-width: 0;
+            min-height: 0;
+            padding: .55rem;
+          }
+          .st-key-nav-card-manager [data-testid="stButton"] button,
+          .st-key-nav-card-review [data-testid="stButton"] button {
+            height: auto;
+            min-height: 2.4rem;
+            padding: .4rem .45rem;
+            white-space: normal;
+          }
+          .st-key-nav-card-manager [data-testid="stButton"] button p,
+          .st-key-nav-card-review [data-testid="stButton"] button p,
+          .st-key-nav-card-manager [data-testid="stCaptionContainer"] p,
+          .st-key-nav-card-review [data-testid="stCaptionContainer"] p {
+            min-width: 0;
+            white-space: normal !important;
+            overflow-wrap: anywhere;
+            text-overflow: clip;
           }
           h1 { font-size: clamp(1.8rem, 7vw, 2.4rem); }
           [data-testid="stMarkdownContainer"] h1 {
