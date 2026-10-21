@@ -16,7 +16,7 @@ class PageTransitionTests(unittest.TestCase):
             streamlit.session_state = {"existing_draft": "Keep this draft"}
             show_page_transition("")
             self.assertEqual(sleep.call_count, 20)
-            self.assertAlmostEqual(sum(call.args[0] for call in sleep.call_args_list), 0.5)
+            self.assertAlmostEqual(sum(call.args[0] for call in sleep.call_args_list), 0.3)
             bar = streamlit.progress.return_value
             self.assertEqual([call.args[0] for call in bar.progress.call_args_list], list(range(5, 101, 5)))
             bar.empty.assert_called_once()

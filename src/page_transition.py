@@ -13,7 +13,7 @@ def show_page_transition(page_path: str) -> None:
     progress = st.progress(0, text="Loading page…")
     try:
         for value in range(5, 101, 5):
-            time.sleep(0.025)
+            time.sleep(0.015)
             progress.progress(value, text="Loading page…")
     finally:
         progress.empty()

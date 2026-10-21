@@ -149,6 +149,102 @@ def apply_theme() -> None:
           letter-spacing: .13em;
         }
 
+        /* Premium native top navigation cards. */
+        .st-key-top-navigation {
+          margin: .3rem 0 1.15rem;
+          padding: 1rem;
+          border: 1px solid rgba(115, 163, 171, .2);
+          border-radius: 14px;
+          background:
+            radial-gradient(ellipse at 8% 0%, rgba(66, 194, 178, .09), transparent 38%),
+            linear-gradient(135deg, rgba(16, 35, 49, .82), rgba(21, 34, 50, .72));
+          box-shadow: 0 16px 38px rgba(3, 11, 19, .2), inset 0 1px rgba(220, 248, 246, .035);
+        }
+        .st-key-operations-nav [data-testid="stHorizontalBlock"] {
+          display: grid;
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+          gap: .85rem;
+        }
+        .st-key-operations-nav [data-testid="stColumn"] {
+          width: 100% !important;
+          min-width: 0 !important;
+        }
+        .st-key-nav-card-overview,
+        .st-key-nav-card-intake,
+        .st-key-nav-card-audit {
+          height: 100%;
+          min-height: 174px;
+          padding: .95rem;
+          border: 1px solid rgba(111, 151, 164, .32);
+          border-radius: 12px;
+          background: linear-gradient(150deg, rgba(32, 53, 71, .96), rgba(22, 39, 55, .98));
+          box-shadow: 0 12px 25px rgba(3, 11, 19, .2), inset 0 1px rgba(222, 246, 245, .045);
+          transition: transform .2s ease, border-color .2s ease, box-shadow .2s ease;
+          animation: orbyte-rise-in .48s both;
+        }
+        .st-key-nav-card-intake { animation-delay: .07s; }
+        .st-key-nav-card-audit { animation-delay: .14s; }
+        .st-key-nav-card-overview:hover,
+        .st-key-nav-card-intake:hover,
+        .st-key-nav-card-audit:hover {
+          transform: translateY(-3px);
+          border-color: rgba(105, 205, 192, .62);
+          box-shadow: 0 17px 31px rgba(3, 11, 19, .29), inset 0 1px rgba(222, 246, 245, .08);
+        }
+        .st-key-nav-card-overview:has(button[kind="primary"]),
+        .st-key-nav-card-intake:has(button[kind="primary"]),
+        .st-key-nav-card-audit:has(button[kind="primary"]) {
+          border-color: rgba(93, 205, 190, .72);
+          background:
+            radial-gradient(ellipse at 100% 0%, rgba(66, 194, 178, .14), transparent 48%),
+            linear-gradient(150deg, #233f4b, #1b3341);
+          box-shadow: 0 15px 32px rgba(3, 11, 19, .28), inset 0 0 0 1px rgba(66, 194, 178, .09);
+        }
+        .orbyte-nav-icon {
+          display: grid;
+          width: 2.65rem;
+          height: 2.65rem;
+          margin: 0 0 .2rem;
+          place-items: center;
+          border: 1px solid rgba(116, 205, 195, .26);
+          border-radius: 10px;
+          background: linear-gradient(145deg, rgba(62, 143, 143, .25), rgba(28, 71, 83, .42));
+          box-shadow: inset 0 1px rgba(226, 250, 246, .08), 0 5px 14px rgba(4, 14, 21, .17);
+          font-size: 1.24rem;
+          line-height: 1;
+        }
+        .st-key-nav-card-overview [data-testid="stCaptionContainer"],
+        .st-key-nav-card-intake [data-testid="stCaptionContainer"],
+        .st-key-nav-card-audit [data-testid="stCaptionContainer"] {
+          color: #aec3c8;
+          font-size: .72rem;
+          line-height: 1.45;
+        }
+        .st-key-nav-card-overview [data-testid="stButton"] button,
+        .st-key-nav-card-intake [data-testid="stButton"] button,
+        .st-key-nav-card-audit [data-testid="stButton"] button {
+          min-height: 2.7rem;
+          text-align: left;
+        }
+        .st-key-nav-card-overview [data-testid="stButton"] button[kind="secondary"],
+        .st-key-nav-card-intake [data-testid="stButton"] button[kind="secondary"],
+        .st-key-nav-card-audit [data-testid="stButton"] button[kind="secondary"] {
+          color: #e1ecee;
+          border-color: rgba(127, 163, 174, .32);
+          background: rgba(14, 31, 45, .55);
+        }
+        .st-key-nav-card-overview [data-testid="stButton"] button[kind="secondary"] p,
+        .st-key-nav-card-intake [data-testid="stButton"] button[kind="secondary"] p,
+        .st-key-nav-card-audit [data-testid="stButton"] button[kind="secondary"] p {
+          color: #e1ecee !important;
+        }
+        .st-key-nav-card-overview [data-testid="stButton"] button[kind="secondary"]:hover,
+        .st-key-nav-card-intake [data-testid="stButton"] button[kind="secondary"]:hover,
+        .st-key-nav-card-audit [data-testid="stButton"] button[kind="secondary"]:hover {
+          border-color: rgba(105, 205, 192, .7);
+          background: rgba(38, 77, 83, .72);
+        }
+
         /* Streamlit navigation and its expand/collapse controls remain native. */
         [data-testid="stSidebar"] {
           background: linear-gradient(165deg, #0c2b31 0%, #102a32 48%, #122832 100%);
@@ -232,10 +328,12 @@ def apply_theme() -> None:
         [data-testid="stMetric"] {
           min-height: 102px;
           padding: .82rem .95rem .72rem;
-          background: linear-gradient(145deg, #213244, #1b2a39);
-          border: 1px solid #394d5e;
-          border-radius: 9px;
-          box-shadow: 0 8px 20px rgba(3, 10, 18, .1);
+          background:
+            radial-gradient(ellipse at 100% 0%, rgba(66, 194, 178, .075), transparent 52%),
+            linear-gradient(145deg, #213648, #1a2b3b);
+          border: 1px solid #3b5363;
+          border-radius: 11px;
+          box-shadow: 0 12px 25px rgba(3, 10, 18, .2), inset 0 1px rgba(220, 246, 244, .045);
           transition: transform .18s ease, border-color .18s ease;
         }
         [data-testid="stMetric"]:hover { border-color: #4b716f; transform: translateY(-2px); }
@@ -282,11 +380,21 @@ def apply_theme() -> None:
         .st-key-kpi-grid [data-testid="stColumn"] {
           width: 100% !important;
           min-width: 0 !important;
-          padding: .82rem;
-          background: linear-gradient(145deg, #213244, #1b2a39);
-          border: 1px solid #394d5e;
-          border-radius: 9px;
-          box-shadow: 0 8px 20px rgba(3, 10, 18, .1);
+          padding: .88rem;
+          background:
+            radial-gradient(ellipse at 100% 0%, rgba(66, 194, 178, .08), transparent 48%),
+            linear-gradient(145deg, #213648, #1b2b3a);
+          border: 1px solid #3b5363;
+          border-radius: 11px;
+          box-shadow: 0 12px 25px rgba(3, 10, 18, .2), inset 0 1px rgba(220, 246, 244, .045);
+          animation: orbyte-rise-in .48s both;
+        }
+        .st-key-kpi-grid [data-testid="stColumn"]:nth-child(2) { animation-delay: .06s; }
+        .st-key-kpi-grid [data-testid="stColumn"]:nth-child(3) { animation-delay: .12s; }
+        .st-key-kpi-grid [data-testid="stColumn"]:nth-child(4) { animation-delay: .18s; }
+        @keyframes orbyte-rise-in {
+          from { opacity: 0; transform: translateY(9px); }
+          to { opacity: 1; transform: translateY(0); }
         }
         .st-key-kpi-grid [data-testid="stMetric"] {
           min-height: 82px;
@@ -416,6 +524,17 @@ def apply_theme() -> None:
         @media (max-width: 767px) {
           [data-testid="stMainBlockContainer"] { padding: 3.8rem 1rem 1.4rem; }
           [data-testid="stMetric"] { min-height: 92px; padding: .75rem; }
+          .st-key-top-navigation { padding: .75rem; }
+          .st-key-operations-nav [data-testid="stHorizontalBlock"] {
+            grid-template-columns: minmax(0, 1fr);
+            gap: .65rem;
+          }
+          .st-key-nav-card-overview,
+          .st-key-nav-card-intake,
+          .st-key-nav-card-audit {
+            min-height: 0;
+            padding: .8rem;
+          }
           h1 { font-size: clamp(1.8rem, 7vw, 2.4rem); }
           [data-testid="stMarkdownContainer"] h1 {
             font-size: clamp(1.8rem, 7vw, 2.4rem) !important;

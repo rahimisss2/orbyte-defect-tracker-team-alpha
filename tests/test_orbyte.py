@@ -100,6 +100,29 @@ class DatabaseTests(IsolatedDatabase):
 
 
 class StreamlitTests(IsolatedDatabase):
+    def test_custom_navigation_and_current_page_replay(self):
+        with patch("page_transition.time") as clock:
+            sleep = clock.sleep
+            app = self.app()
+            before = sleep.call_count
+            app.button(key="nav_overview").click().run()
+            self.assertEqual(app.title[0].value, "Control room")
+            self.assertEqual(sleep.call_count - before, 20)
+            for screen, title in [
+                ("intake", "Log incident"),
+                ("audit", "Audit history"),
+                ("manager", "Manager dashboard"),
+                ("review", "Review & authorize"),
+                ("overview", "Control room"),
+            ]:
+                before = sleep.call_count
+                app.button(key=f"nav_{screen}").click().run()
+                self.assertFalse(app.exception)
+                self.assertEqual(app.title[0].value, title)
+                self.assertEqual(sleep.call_count - before, 20)
+                app.switch_page(f"screens/{screen}.py").run()
+            self.assertEqual(database.read_database()["claims"], [])
+
     def app(self):
         app = AppTest.from_file(str(ROOT / "src/main.py"), default_timeout=20).run()
         self.assertFalse(app.exception)
@@ -139,7 +162,7 @@ class StreamlitTests(IsolatedDatabase):
         self.assertEqual(app.metric[3].value, "RM 25.50")
         app.switch_page("screens/manager.py").run()
         self.assertEqual(app.metric[1].value, "RM 25.50")
-        self.button(app, "Review & Authorisation").click().run()
+        app.button(key="nav_review").click().run()
         self.assertEqual(app.title[0].value, "Review & authorize")
         self.assertEqual(len(app.metric), 0)
         # Synchronize AppTest's last explicit page request after a shortcut

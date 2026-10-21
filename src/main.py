@@ -2,11 +2,11 @@
 
 import logging
 from html import escape
-from pathlib import Path
 
 import streamlit as st
 
 from database import read_database
+from navigation import render_navigation
 from page_transition import show_page_transition
 from theme import apply_theme
 
@@ -14,7 +14,7 @@ st.set_page_config(
     page_title="Orbyte · Smart-Defect Tracker",
     page_icon=":material/inventory_2:",
     layout="wide",
-    initial_sidebar_state="auto",
+    initial_sidebar_state="collapsed",
 )
 st.markdown(
     """
@@ -47,7 +47,6 @@ st.markdown(
     unsafe_allow_html=True,
 )
 apply_theme()
-st.logo(str(Path(__file__).resolve().parent / "assets" / "orbyte-mark.svg"), size="large")
 
 try:
     st.session_state["database"] = read_database()
@@ -66,16 +65,10 @@ page = st.navigation({
         st.Page("screens/manager.py", title="Manager dashboard", icon=":material/trending_up:", url_path="manager"),
         st.Page("screens/review.py", title="Review & authorize", icon=":material/task_alt:", url_path="review"),
     ],
-}, expanded=True)
+}, position="hidden")
 
+render_navigation(page.url_path)
 show_page_transition(page.url_path)
-
-with st.sidebar:
-    st.divider()
-    st.caption("Hub operations · Local demo workspace")
-    pending = sum(claim["status"] == "pending_review" for claim in st.session_state["database"]["claims"])
-    st.caption(f"{pending} pending {'discrepancy' if pending == 1 else 'discrepancies'}")
-    st.caption("ORBYTE SYSTEMS")
 
 st.markdown(
     (
