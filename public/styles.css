@@ -26,8 +26,9 @@ body {
   margin: 0;
   min-height: 100dvh;
   background:
-    radial-gradient(ellipse at 77% 8%, rgba(39, 123, 119, .12), transparent 38%),
-    linear-gradient(135deg, #111d2b 0%, #172332 50%, #1b2938 100%);
+    radial-gradient(ellipse at 100% 0%, rgba(42, 132, 124, .075), transparent 34%),
+    radial-gradient(ellipse at 0% 100%, rgba(35, 108, 115, .055), transparent 38%),
+    linear-gradient(135deg, #111c2a 0%, #172332 52%, #1a2938 100%);
   color: var(--ink);
   font-family: var(--display);
   font-size: 14px;
@@ -268,8 +269,8 @@ td:first-child, th:first-child { padding-left: 20px; }
 .amount { color: #93dfd1; font: 12px var(--mono); }
 .badge { display: inline-flex; align-items: center; gap: 6px; border-radius: 12px; padding: 5px 9px; font-size: 11px; }
 .badge .status-dot { width: 5px; height: 5px; }
-.badge.pending { background: #493a28; color: #f0ca8e; }
-.badge.authorized { background: #1f4439; color: #a4e5bc; }
+.badge.pending { background: #433721; border: 1px solid #78613a; color: #f1d39b; }
+.badge.authorized { background: #1d4039; border: 1px solid #397064; color: #b4e8ca; }
 .row-action { border: 0; color: #8de0d1; background: transparent; font-size: 9px; font-weight: 700; }
 .row-action:hover { color: #d0fff6; text-decoration: underline; }
 .table-skeleton { height: 40px; display: flex; align-items: center; gap: 14px; }
@@ -325,7 +326,7 @@ td:first-child, th:first-child { padding-left: 20px; }
 .section-page-heading h2 { font-size: 23px; letter-spacing: -1px; }
 .section-page-heading > div > p:last-child { color: #bdcbd0; font-size: 13px; line-height: 1.6; margin: 8px 0 0; }
 .audit-stamp { color: #b8d1d1; border: 1px solid #4c616b; border-radius: 4px; padding: 8px 10px; font-size: 8px; }
-.audit-toolbar { display: flex; justify-content: space-between; padding: 14px 0; font-size: 10px; color: #bfccd0; }
+.audit-toolbar { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 14px 0; font-size: 10px; color: #d0dcde; }
 .audit-legend { display: flex; gap: 16px; text-transform: none; letter-spacing: 0; font-family: var(--display); font-size: 12px; color: #c5d0d3; }
 .audit-legend span { display: flex; gap: 6px; align-items: center; }
 .audit-legend .status-dot { width: 6px; height: 6px; }
@@ -387,6 +388,45 @@ td:first-child, th:first-child { padding-left: 20px; }
 #manager-page .stat-card { min-height: 138px; }
 #manager-page .stat-foot { line-height: 1.6; }
 
+/* Keep navigation and working surfaces resilient at intermediate widths. */
+.workspace, .content-wrap, .panel, .workspace-section { min-width: 0; }
+.rail-label { overflow-wrap: anywhere; }
+.nav-link { min-width: 0; }
+.nav-link > span:not(.nav-icon):not(.nav-count):not(.nav-dot) { min-width: 0; overflow-wrap: anywhere; }
+.portal-heading, .page-heading, .section-page-heading { min-width: 0; }
+.button { max-width: 100%; white-space: normal; }
+#manager-page .stat-card { min-width: 0; }
+#manager-page .stat-top > :first-child, #manager-page .stat-foot { min-width: 0; overflow-wrap: anywhere; }
+.review-claim-head { flex-wrap: wrap; min-width: 0; }
+.review-claim-head > div { min-width: 0; overflow-wrap: anywhere; }
+.review-claim-head .badge { max-width: 100%; white-space: normal; }
+.review-claim-grid > * { min-width: 0; }
+.fact-row strong, .fact-row p { overflow-wrap: anywhere; }
+.review-letter-label { min-width: 0; }
+
+/* Audit is deliberately scoped: preserve every field and scroll the table itself. */
+#audit-view .section-page-heading > div { min-width: 0; }
+#audit-view .audit-stamp { flex: 0 0 auto; }
+#audit-view .audit-toolbar { flex-wrap: wrap; }
+#audit-view #audit-total { color: #e0ebec; font-weight: 500; }
+#audit-view .audit-legend { flex-wrap: wrap; }
+#audit-view .audit-table-scroll { max-width: 100%; overflow-x: auto; overscroll-behavior-inline: contain; }
+#audit-view table { width: 100%; min-width: 1010px; table-layout: fixed; white-space: normal; }
+#audit-view th, #audit-view td { vertical-align: middle; }
+#audit-view th { line-height: 1.45; }
+#audit-view th:nth-child(1), #audit-view td:nth-child(1) { width: 17%; }
+#audit-view th:nth-child(2), #audit-view td:nth-child(2) { width: 15%; }
+#audit-view th:nth-child(3), #audit-view td:nth-child(3) { width: 18%; }
+#audit-view th:nth-child(4), #audit-view td:nth-child(4) { width: 7%; text-align: right; }
+#audit-view th:nth-child(5), #audit-view td:nth-child(5) { width: 14%; text-align: right; }
+#audit-view th:nth-child(6), #audit-view td:nth-child(6) { width: 15%; }
+#audit-view th:nth-child(7), #audit-view td:nth-child(7) { width: 14%; }
+#audit-view td { line-height: 1.5; overflow-wrap: anywhere; }
+#audit-view .claim-id, #audit-view .claim-date, #audit-view .amount { font-variant-numeric: tabular-nums; }
+#audit-view .claim-date { line-height: 1.45; }
+#audit-view .badge { max-width: 100%; white-space: normal; line-height: 1.35; }
+#audit-view tbody tr:not(:last-child) td { border-bottom-color: #405363; }
+
 @media (max-width: 1120px) {
   .rail { width: 194px; }
   .workspace { margin-left: 194px; }
@@ -419,6 +459,9 @@ td:first-child, th:first-child { padding-left: 20px; }
   .side-note { grid-column: 1 / -1; }
   .review-claim-grid { grid-template-columns: 1fr; }
   .review-claim-actions { flex-wrap: wrap; }
+  .app-shell .rail .main-nav { min-width: 0; }
+  .app-shell .rail .nav-link { overflow-wrap: anywhere; }
+  .review-claim-actions > * { min-width: 0; }
 }
 @media (max-width: 580px) {
   .app-shell .rail { padding: 14px; }
@@ -483,6 +526,13 @@ td:first-child, th:first-child { padding-left: 20px; }
   .review-claim-actions .action-explainer { width: 100%; margin-left: 0; order: 2; }
   .page-footer { flex-wrap: wrap; gap: 9px; font-size: 7px; }
   .page-footer span:nth-child(2) { display: none; }
+  #manager-page .status-strip { grid-template-columns: minmax(0, 1fr); }
+  #audit-view .section-page-heading { gap: 10px; }
+  #audit-view .audit-stamp { white-space: normal; }
+  #audit-view .audit-toolbar { align-items: flex-start; }
+  #audit-view .audit-legend { gap: 8px 12px; }
+  .review-claim-head { align-items: flex-start; }
+  .review-claim-head .badge { flex: 0 1 auto; }
 }
 @media (min-width: 1500px) { .content-wrap { padding-left: 54px; padding-right: 54px; } }
 
