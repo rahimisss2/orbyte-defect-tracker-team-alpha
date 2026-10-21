@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 52" role="img" aria-labelledby="title">
+  <title id="title">Orbyte</title>
+  <rect x="2" y="8" width="36" height="36" rx="8" fill="#1c3b40"/>
+  <path d="M10 16h8v8h-8zm12 0h8v8h-8zM10 28h8v8h-8zm12 0h8v8h-8z" fill="#55c6b5"/>
+  <text x="48" y="38" fill="#e8f0f2" font-family="Manrope, sans-serif" font-size="31" font-weight="800" letter-spacing="-2">orbyte</text>
+  <circle cx="154" cy="34" r="3" fill="#42c2b2"/>
+</svg>

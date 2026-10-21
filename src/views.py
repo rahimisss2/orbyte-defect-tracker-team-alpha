@@ -71,7 +71,7 @@ def submit_incident():
 def log_incident():
     st.caption("Floor Worker Portal — record defective deliveries for manager review.")
     suppliers = st.session_state["database"]["suppliers"]
-    with st.container(border=True):
+    with st.container(key="incident-form-panel", border=True):
         st.subheader("Log a delivery discrepancy")
         st.caption("Keep the original details. The manager can refine the claim letter.")
         supplier_name = st.selectbox(
@@ -148,7 +148,7 @@ def review_authorize():
         return
     st.subheader("Pending discrepancies")
     for claim in pending:
-        with st.container(border=True):
+        with st.container(key=f"review-claim-{claim['id']}", border=True):
             st.subheader(claim_label(claim["id"]))
             st.caption(f"Submitted {display_date(claim['createdAt'])} · Pending review")
             facts, draft = st.columns([1, 1.5], gap="large")

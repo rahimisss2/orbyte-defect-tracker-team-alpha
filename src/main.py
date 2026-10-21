@@ -1,6 +1,8 @@
 """Orbyte Smart-Defect Tracker — run with streamlit run src/main.py."""
 
 import logging
+from html import escape
+from pathlib import Path
 
 import streamlit as st
 
@@ -14,6 +16,7 @@ st.set_page_config(
     initial_sidebar_state="auto",
 )
 apply_theme()
+st.logo(str(Path(__file__).resolve().parent / "assets" / "orbyte-mark.svg"), size="large")
 
 try:
     st.session_state["database"] = read_database()
@@ -21,10 +24,6 @@ except (OSError, ValueError) as error:
     logging.exception("Could not load Orbyte's local database")
     st.error(f"Could not load the local workspace: {error}")
     st.stop()
-
-with st.sidebar:
-    st.markdown('<div class="orbyte-brand"><span>▦</span> orbyte<span>.</span></div>', unsafe_allow_html=True)
-    st.caption("RETAIL CLAIMS OPERATIONS")
 
 page = st.navigation({
     "OPERATIONS": [
@@ -45,8 +44,15 @@ with st.sidebar:
     st.caption(f"{pending} pending {'discrepancy' if pending == 1 else 'discrepancies'}")
     st.caption("ORBYTE SYSTEMS")
 
-st.caption(f"Orbyte / {page.title}")
-st.caption("RETAIL CLAIMS OPERATIONS")
+st.markdown(
+    (
+        '<div class="orbyte-topline"><span><span class="crumb">Orbyte</span>'
+        f'<span class="slash">/</span>{escape(page.title)}</span>'
+        '<span class="orbyte-live">LIVE WORKSPACE</span></div>'
+        '<p class="orbyte-eyebrow">RETAIL CLAIMS OPERATIONS</p>'
+    ),
+    unsafe_allow_html=True,
+)
 st.title(page.title)
 st.info(
     "Demo workspace. No email is actually sent and no external supplier invoice is held. "

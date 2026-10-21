@@ -1,15 +1,10 @@
-"""Orbyte's Streamlit visual system.
-
-Call :func:`apply_theme` near the start of the app, after ``st.set_page_config``.
-The styles intentionally target Streamlit's public ``data-testid`` hooks and
-leave its native navigation, sidebar controls, and error surfaces intact.
-"""
+"""Orbyte's native Streamlit theme; loaded before the five native pages."""
 
 import streamlit as st
 
 
 def apply_theme() -> None:
-    """Inject the Orbyte dark navy and teal theme into the current Streamlit page."""
+    """Inject the compact navy-and-teal Orbyte visual system."""
     st.markdown(
         """
         <style>
@@ -41,19 +36,19 @@ def apply_theme() -> None:
         }
         [data-testid="stAppViewContainer"] {
           background:
-            radial-gradient(ellipse at 100% 0%, rgba(42, 132, 124, .075), transparent 34%),
-            radial-gradient(ellipse at 0% 100%, rgba(35, 108, 115, .055), transparent 38%),
+            radial-gradient(ellipse at 100% 0%, rgba(42, 132, 124, .10), transparent 34%),
+            radial-gradient(ellipse at 0% 100%, rgba(35, 108, 115, .07), transparent 38%),
             linear-gradient(135deg, #111c2a 0%, #172332 52%, #1a2938 100%);
         }
         [data-testid="stHeader"] {
-          background: rgba(13, 25, 38, .56);
-          border-bottom: 1px solid rgba(149, 177, 188, .14);
+          background: rgba(13, 25, 38, .60);
+          border-bottom: 1px solid rgba(149, 177, 188, .13);
           backdrop-filter: blur(12px);
         }
         [data-testid="stToolbar"] { right: 1rem; }
         [data-testid="stMainBlockContainer"] {
           max-width: 1440px;
-          padding: 5rem clamp(1rem, 3.4vw, 3rem) 2.5rem;
+          padding: 3.9rem clamp(1rem, 3vw, 2.7rem) 1.5rem;
         }
 
         h1, h2, h3, h4 {
@@ -63,42 +58,111 @@ def apply_theme() -> None:
         }
         h1 {
           font-weight: 800;
-          font-size: clamp(2rem, 3.8vw, 3.05rem);
+          font-size: clamp(1.9rem, 3.2vw, 2.65rem);
           line-height: 1.08;
-          margin-bottom: .35rem;
+          margin: .1rem 0 .25rem;
         }
-        h2 { font-weight: 700; }
-        p, label, [data-testid="stCaptionContainer"] {
-          color: var(--orbyte-soft);
+        [data-testid="stMarkdownContainer"] h1 {
+          color: #f0f5f6 !important;
+          font-family: var(--orbyte-display) !important;
+          font-size: clamp(1.9rem, 3.2vw, 2.65rem) !important;
+          font-weight: 800 !important;
+          letter-spacing: -.045em !important;
+          line-height: 1.08 !important;
+        }
+        h2 { font-weight: 700; font-size: 1.28rem; }
+        h3 { font-weight: 700; font-size: 1.05rem; }
+        [data-testid="stMarkdownContainer"] h2,
+        [data-testid="stMarkdownContainer"] h3,
+        [data-testid="stMarkdownContainer"] h4 {
+          color: #f0f5f6 !important;
+          font-family: var(--orbyte-display) !important;
+          font-weight: 700 !important;
+          letter-spacing: -.035em !important;
+          line-height: 1.35 !important;
+        }
+        [data-testid="stMarkdownContainer"] h2 { font-size: 1.28rem !important; }
+        [data-testid="stMarkdownContainer"] h3 { font-size: 1.05rem !important; }
+        p, label, [data-testid="stCaptionContainer"] { color: var(--orbyte-soft); }
+        [data-testid="stMarkdownContainer"] p {
+          color: var(--orbyte-soft) !important;
+          font-family: var(--orbyte-display) !important;
+          font-size: .84rem !important;
+          line-height: 1.55 !important;
+        }
+        [data-testid="stMarkdownContainer"] p.orbyte-eyebrow {
+          margin: 0 0 .32rem !important;
+          color: #a8c4c6 !important;
+          font-family: var(--orbyte-mono) !important;
+          font-size: .61rem !important;
+          font-weight: 500 !important;
+          letter-spacing: .13em !important;
+          line-height: 1.3 !important;
         }
         [data-testid="stCaptionContainer"] {
-          font-size: .92rem;
-          line-height: 1.65;
+          font-size: .81rem;
+          line-height: 1.55;
+        }
+        [data-testid="stCaptionContainer"] p {
+          color: var(--orbyte-soft) !important;
+          font-family: var(--orbyte-display) !important;
+          font-size: .81rem !important;
+          font-weight: 500 !important;
+          line-height: 1.55 !important;
+        }
+        [data-testid="stVerticalBlock"] { gap: .8rem; }
+        [data-testid="stElementContainer"] { margin-bottom: 0; }
+        [data-testid="stMarkdownContainer"] p { margin-bottom: .45rem; }
+        .orbyte-topline {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 12px;
+          margin: 0 0 .7rem;
+          color: #afc1c6;
+          font: 500 .68rem var(--orbyte-mono);
+          letter-spacing: .025em;
+        }
+        .orbyte-topline .crumb { color: #d4e1e3; }
+        .orbyte-topline .slash { color: #789197; padding: 0 .45rem; }
+        .orbyte-live {
+          display: inline-flex;
+          align-items: center;
+          gap: 7px;
+          color: #b7d6d2;
+          font: 500 .61rem var(--orbyte-mono);
+          letter-spacing: .07em;
+          white-space: nowrap;
+        }
+        .orbyte-live::before {
+          content: "";
+          width: 6px;
+          height: 6px;
+          border-radius: 50%;
+          background: #78d0a2;
+          box-shadow: 0 0 0 3px rgba(120, 208, 162, .11);
+        }
+        .orbyte-eyebrow {
+          margin: 0 0 .32rem;
+          color: #a8c4c6;
+          font: 500 .61rem var(--orbyte-mono);
+          letter-spacing: .13em;
         }
 
-        /* Native sidebar stays fully usable, including Streamlit's own controls. */
+        /* Streamlit navigation and its expand/collapse controls remain native. */
         [data-testid="stSidebar"] {
           background: linear-gradient(165deg, #0c2b31 0%, #102a32 48%, #122832 100%);
           border-right: 1px solid rgba(123, 185, 185, .16);
           box-shadow: 12px 0 34px rgba(3, 11, 18, .12);
         }
-        [data-testid="stSidebar"] > div:first-child {
-          background: transparent;
+        [data-testid="stSidebar"] > div:first-child { background: transparent; }
+        [data-testid="stSidebar"] [data-testid="stLogo"] {
+          padding: .6rem .85rem .2rem;
         }
-        .orbyte-brand {
-          color: #e8f0f2;
-          font: 800 1.8rem var(--orbyte-display);
-          letter-spacing: -.06em;
-          margin: .4rem 0 .6rem;
-        }
-        .orbyte-brand span { color: var(--orbyte-teal); }
-        [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] p {
-          color: #c2d5d8;
-        }
-        [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] strong {
-          color: #a8c1c3;
-          font: 500 .68rem var(--orbyte-mono);
-          letter-spacing: .09em;
+        [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] p { color: #c2d5d8; }
+        [data-testid="stSidebar"] [data-testid="stCaptionContainer"] {
+          color: #afc6c8;
+          font-size: .68rem;
         }
         [data-testid="stSidebar"] a {
           color: #c2d5d8;
@@ -115,75 +179,147 @@ def apply_theme() -> None:
           background: #1d4147;
           box-shadow: inset 2px 0 var(--orbyte-teal);
         }
-        [data-testid="stSidebar"] [data-testid="stVerticalBlock"] {
-          gap: .45rem;
+        [data-testid="stSidebar"] [data-testid="stVerticalBlock"] { gap: .38rem; }
+        [data-testid="stSidebar"] [data-testid="stSidebarNav"] { padding-top: .25rem; }
+        [data-testid="stSidebar"] [data-testid="stNavSectionHeader"] {
+          color: #a8c1c3 !important;
+          font: 500 .64rem var(--orbyte-mono) !important;
+          letter-spacing: .09em !important;
+          text-transform: uppercase;
+        }
+        [data-testid="stSidebar"] [data-testid="stNavSectionHeader"] p {
+          color: #a8c1c3 !important;
+          font: 500 .64rem/1.5 var(--orbyte-mono) !important;
+          letter-spacing: .09em !important;
+        }
+        [data-testid="stSidebar"] a[data-testid="stSidebarNavLink"] p {
+          color: inherit !important;
+          font: 600 .84rem/1.5 var(--orbyte-display) !important;
+        }
+        [data-testid="stSidebar"] a[data-testid="stSidebarNavLink"] {
+          color: #c2d5d8 !important;
+          font-family: var(--orbyte-display) !important;
+          font-size: .84rem !important;
+          font-weight: 600 !important;
+        }
+        [data-testid="stSidebar"] a[data-testid="stSidebarNavLink"][aria-current="page"] {
+          color: #f3fffd !important;
+          background: #1d4147 !important;
+          box-shadow: inset 2px 0 var(--orbyte-teal);
         }
 
-        /* Native bordered containers become calm, legible working surfaces. */
+        /* Bordered native containers: compact raised panels from the old workspace. */
         [data-testid="stVerticalBlockBorderWrapper"] {
-          background: linear-gradient(145deg, rgba(29, 45, 61, .96), rgba(26, 41, 56, .96));
+          background: linear-gradient(145deg, rgba(29, 45, 61, .97), rgba(26, 41, 56, .97));
           border: 1px solid #364a5b;
-          border-radius: 10px;
-          box-shadow: 0 14px 36px rgba(3, 11, 19, .18);
+          border-radius: 9px;
+          box-shadow: 0 12px 30px rgba(3, 11, 19, .16);
+        }
+        .st-key-incident-form-panel,
+        [class*="st-key-review-claim-"] {
+          background: linear-gradient(145deg, #1d2d3d, #1a2938);
+          border: 1px solid #364a5b;
+          border-radius: 9px;
+          box-shadow: 0 12px 30px rgba(3, 11, 19, .16);
+          padding: 1.1rem;
+        }
+        [data-testid="stText"] {
+          color: var(--orbyte-soft);
+          font-family: var(--orbyte-display);
+          font-size: .84rem;
+          line-height: 1.6;
         }
         [data-testid="stMetric"] {
-          min-height: 112px;
-          padding: 1rem 1.05rem .85rem;
+          min-height: 102px;
+          padding: .82rem .95rem .72rem;
           background: linear-gradient(145deg, #213244, #1b2a39);
           border: 1px solid #394d5e;
           border-radius: 9px;
           box-shadow: 0 8px 20px rgba(3, 10, 18, .1);
           transition: transform .18s ease, border-color .18s ease;
         }
-        [data-testid="stMetric"]:hover {
-          border-color: #4b716f;
-          transform: translateY(-2px);
-        }
+        [data-testid="stMetric"]:hover { border-color: #4b716f; transform: translateY(-2px); }
         [data-testid="stMetricLabel"] {
           color: #c0cdd2;
-          font: 500 .68rem var(--orbyte-mono);
+          font: 500 .64rem var(--orbyte-mono);
           letter-spacing: .065em;
           text-transform: uppercase;
         }
-        [data-testid="stMetricValue"] {
-          color: var(--orbyte-teal-light);
-          font-family: var(--orbyte-mono);
-          font-size: clamp(1.45rem, 2.2vw, 2rem);
-          font-weight: 500;
-          font-variant-numeric: tabular-nums;
+        [data-testid="stMetricLabel"] label,
+        [data-testid="stMetricLabel"] p,
+        [data-testid="stMetricLabel"] > div {
+          color: #c0cdd2 !important;
+          font: 500 .64rem/1.45 var(--orbyte-mono) !important;
+          letter-spacing: .065em;
+          text-transform: uppercase;
         }
-        [data-testid="stMetricDelta"] { font-size: .78rem; }
+        [data-testid="stMetric"] [data-testid="stMetricLabel"] p {
+          color: #c0cdd2 !important;
+          font-family: var(--orbyte-mono) !important;
+          font-size: .64rem !important;
+          font-weight: 500 !important;
+          line-height: 1.45 !important;
+          letter-spacing: .065em !important;
+          text-transform: uppercase !important;
+        }
+        [data-testid="stMetricValue"],
+        [data-testid="stMetricValue"] > div,
+        [data-testid="stMetricValue"] p {
+          color: var(--orbyte-teal-light) !important;
+          font-family: var(--orbyte-mono) !important;
+          font-size: clamp(1.25rem, 2vw, 1.75rem) !important;
+          font-weight: 500 !important;
+          line-height: 1.2 !important;
+          font-variant-numeric: tabular-nums;
+          overflow-wrap: anywhere;
+        }
+        [data-testid="stMetricDelta"] { font-size: .72rem; }
         .st-key-kpi-grid [data-testid="stHorizontalBlock"] {
           display: grid;
           grid-template-columns: repeat(4, minmax(0, 1fr));
-          gap: 1rem;
+          gap: .8rem;
         }
         .st-key-kpi-grid [data-testid="stColumn"] {
           width: 100% !important;
           min-width: 0 !important;
-          padding: 1.1rem;
+          padding: .82rem;
           background: linear-gradient(145deg, #213244, #1b2a39);
           border: 1px solid #394d5e;
           border-radius: 9px;
           box-shadow: 0 8px 20px rgba(3, 10, 18, .1);
         }
         .st-key-kpi-grid [data-testid="stMetric"] {
+          min-height: 82px;
           padding: 0;
-          min-height: 90px;
           background: none;
           border: 0;
           box-shadow: none;
           transform: none;
         }
-        .st-key-kpi-grid [data-testid="stMetricValue"] {
-          font-family: var(--orbyte-display);
-          font-size: clamp(1.25rem, 1.9vw, 1.8rem);
-          font-weight: 700;
+        .st-key-kpi-grid [data-testid="stMetricValue"],
+        .st-key-kpi-grid [data-testid="stMetricValue"] > div,
+        .st-key-kpi-grid [data-testid="stMetricValue"] p {
+          color: #e6f2f1 !important;
+          font-family: var(--orbyte-display) !important;
+          font-size: clamp(1.2rem, 1.8vw, 1.65rem) !important;
+          font-weight: 700 !important;
           letter-spacing: -.035em;
+        }
+        .st-key-kpi-grid [data-testid="stCaptionContainer"] {
+          color: #b3c2c8;
+          font-size: .7rem;
+          line-height: 1.45;
+        }
+        .st-key-kpi-grid [data-testid="stCaptionContainer"] p {
+          color: #b3c2c8 !important;
+          font-family: var(--orbyte-display) !important;
+          font-size: .7rem !important;
+          font-weight: 500 !important;
+          line-height: 1.45 !important;
         }
 
         [data-testid="stAlert"] {
-          border-radius: 8px;
+          border-radius: 7px;
           border: 1px solid #53616c;
           background: #24323e;
           color: #d1dcdf;
@@ -195,7 +331,7 @@ def apply_theme() -> None:
           color: #e7f0f1;
           background: #142331;
           border-color: #496070;
-          border-radius: 7px;
+          border-radius: 6px;
           font-family: var(--orbyte-display);
           transition: border-color .16s ease, box-shadow .16s ease, background-color .16s ease;
         }
@@ -208,25 +344,38 @@ def apply_theme() -> None:
           background: #182b38;
         }
         [data-testid="stTextInput"] input::placeholder,
-        [data-testid="stTextArea"] textarea::placeholder {
-          color: #a6b6bb;
-          opacity: 1;
-        }
+        [data-testid="stTextArea"] textarea::placeholder { color: #a6b6bb; opacity: 1; }
         [data-testid="stWidgetLabel"] p {
-          color: #d8e3e5;
-          font-weight: 600;
+          color: #d8e3e5 !important;
+          font-family: var(--orbyte-display) !important;
+          font-size: .85rem !important;
+          font-weight: 600 !important;
+          line-height: 1.45 !important;
         }
         [data-testid="stButton"] button,
         [data-testid="stFormSubmitButton"] button {
-          min-height: 2.7rem;
-          padding: .55rem 1rem;
+          min-height: 2.55rem;
+          padding: .48rem .9rem;
           border: 1px solid #43c2b2;
           border-radius: 7px;
           background: #35a998;
           color: #062821;
           font-family: var(--orbyte-display);
+          font-size: .82rem;
           font-weight: 700;
           transition: transform .18s ease, background-color .18s ease, border-color .18s ease;
+        }
+        [data-testid="stButton"] button p,
+        [data-testid="stFormSubmitButton"] button p,
+        [data-testid="stButton"] button [data-testid="stMarkdownContainer"] p,
+        [data-testid="stFormSubmitButton"] button [data-testid="stMarkdownContainer"] p {
+          margin: 0 !important;
+          color: #062821 !important;
+          font-family: var(--orbyte-display) !important;
+          font-size: .82rem !important;
+          font-weight: 700 !important;
+          line-height: 1.25 !important;
+          letter-spacing: 0 !important;
         }
         [data-testid="stButton"] button:hover,
         [data-testid="stFormSubmitButton"] button:hover {
@@ -236,20 +385,20 @@ def apply_theme() -> None:
         }
         [data-testid="stButton"] button:focus-visible,
         [data-testid="stFormSubmitButton"] button:focus-visible,
-        input:focus-visible, textarea:focus-visible, [role="combobox"]:focus-visible {
+        input:focus-visible, textarea:focus-visible, [role="combobox"]:focus-visible,
+        [data-testid="stSidebar"] button:focus-visible,
+        [data-testid="stSidebar"] a:focus-visible {
           outline: 3px solid #66dfce;
           outline-offset: 3px;
         }
+        [data-testid="stButton"] button:disabled,
+        [data-testid="stFormSubmitButton"] button:disabled { opacity: .62; }
 
-        [data-testid="stDataFrame"] {
-          border: 1px solid #3d5261;
-          border-radius: 8px;
-          overflow: hidden;
-        }
+        [data-testid="stDataFrame"] { border: 1px solid #3d5261; border-radius: 8px; overflow: hidden; }
         [data-testid="stDataFrame"] [role="columnheader"] {
           color: #c2cfd2;
           font-family: var(--orbyte-mono);
-          font-size: .72rem;
+          font-size: .68rem;
         }
         [data-testid="stDataFrame"] [role="gridcell"] {
           color: #d0dadd;
@@ -262,25 +411,26 @@ def apply_theme() -> None:
         hr { border-color: rgba(149, 177, 188, .2); }
 
         @media (max-width: 1150px) {
-          .st-key-kpi-grid [data-testid="stHorizontalBlock"] {
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-          }
+          .st-key-kpi-grid [data-testid="stHorizontalBlock"] { grid-template-columns: repeat(2, minmax(0, 1fr)); }
         }
         @media (max-width: 767px) {
-          [data-testid="stMainBlockContainer"] {
-            padding: 4.6rem 1rem 2rem;
+          [data-testid="stMainBlockContainer"] { padding: 3.8rem 1rem 1.4rem; }
+          [data-testid="stMetric"] { min-height: 92px; padding: .75rem; }
+          h1 { font-size: clamp(1.8rem, 7vw, 2.4rem); }
+          [data-testid="stMarkdownContainer"] h1 {
+            font-size: clamp(1.8rem, 7vw, 2.4rem) !important;
           }
-          [data-testid="stMetric"] {
-            min-height: 98px;
-            padding: .85rem;
-          }
-          h1 { font-size: clamp(1.85rem, 8vw, 2.55rem); }
+          .st-key-kpi-grid [data-testid="stHorizontalBlock"] { gap: .6rem; }
+          .st-key-kpi-grid [data-testid="stColumn"] { padding: .72rem; }
         }
-        @media (max-width: 600px) {
-          .st-key-kpi-grid [data-testid="stHorizontalBlock"] {
-            grid-template-columns: minmax(0, 1fr);
-          }
-          .st-key-kpi-grid [data-testid="stMetricValue"] { font-size: 1.8rem; }
+        @media (max-width: 560px) {
+          .st-key-kpi-grid [data-testid="stHorizontalBlock"] { grid-template-columns: minmax(0, 1fr); }
+          .st-key-kpi-grid [data-testid="stMetric"] { min-height: 74px; }
+          .st-key-kpi-grid [data-testid="stMetricValue"],
+          .st-key-kpi-grid [data-testid="stMetricValue"] > div,
+          .st-key-kpi-grid [data-testid="stMetricValue"] p { font-size: 1.45rem !important; }
+          [data-testid="stSidebar"] [data-testid="stSidebarNav"] { padding-bottom: .8rem; }
+          .orbyte-topline { font-size: .61rem; }
         }
         @media (prefers-reduced-motion: reduce) {
           *, *::before, *::after {
