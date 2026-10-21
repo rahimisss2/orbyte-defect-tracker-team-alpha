@@ -47,6 +47,72 @@ st.markdown(
     unsafe_allow_html=True,
 )
 apply_theme()
+st.markdown(
+    """
+    <style>
+    @media (max-width: 767px) {
+        .st-key-top-navigation {
+            padding: .55rem;
+        }
+        .st-key-operations-nav [data-testid="stHorizontalBlock"] {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: .5rem;
+        }
+        .st-key-operations-nav [data-testid="stColumn"] {
+            width: 100% !important;
+            min-width: 0 !important;
+        }
+        .st-key-nav-card-overview,
+        .st-key-nav-card-intake,
+        .st-key-nav-card-audit {
+            min-width: 0;
+            min-height: 0;
+            padding: .55rem;
+        }
+        .st-key-nav-card-overview [data-testid="stButton"] button,
+        .st-key-nav-card-intake [data-testid="stButton"] button,
+        .st-key-nav-card-audit [data-testid="stButton"] button {
+            height: auto;
+            min-height: 2.4rem;
+            padding: .4rem .45rem;
+            white-space: normal;
+        }
+        .st-key-nav-card-overview [data-testid="stButton"] button p,
+        .st-key-nav-card-intake [data-testid="stButton"] button p,
+        .st-key-nav-card-audit [data-testid="stButton"] button p {
+            white-space: normal !important;
+            overflow-wrap: anywhere;
+            text-overflow: clip;
+        }
+        .st-key-kpi-grid [data-testid="stHorizontalBlock"] {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: .5rem;
+        }
+        .st-key-kpi-grid [data-testid="stColumn"] {
+            width: 100% !important;
+            min-width: 0 !important;
+            padding: .55rem;
+        }
+        .st-key-kpi-grid [data-testid="stMetric"] {
+            min-width: 0;
+            min-height: 70px;
+        }
+        .st-key-kpi-grid [data-testid="stMetricValue"],
+        .st-key-kpi-grid [data-testid="stMetricValue"] > div,
+        .st-key-kpi-grid [data-testid="stMetricValue"] p {
+            min-width: 0;
+            max-width: 100%;
+            font-size: clamp(.88rem, 4.6vw, 1.2rem) !important;
+            white-space: normal !important;
+            overflow: visible !important;
+            overflow-wrap: anywhere;
+            text-overflow: clip !important;
+        }
+    }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
 
 try:
     st.session_state["database"] = read_database()
