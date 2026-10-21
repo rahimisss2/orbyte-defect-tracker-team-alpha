@@ -560,19 +560,14 @@ td:first-child, th:first-child { padding-left: 20px; }
   min-height: 120px;
   padding: 15px;
 }
-#overview-page .stat-top { align-items: flex-start; font-size: 11px; line-height: 1.45; }
+#overview-page .stat-top { align-items: flex-start; }
 #overview-page .stat-top > :first-child { flex: 1 1 auto; min-width: 0; overflow-wrap: anywhere; }
 #overview-page .stat-top > :last-child { flex: 0 0 auto; }
 #overview-page .stat-number {
   margin-top: 10px;
-  font-size: clamp(22px, 2.2vw, 32px);
-  line-height: 1.1;
-  letter-spacing: -.04em;
-  font-variant-numeric: tabular-nums;
   overflow-wrap: anywhere;
 }
-#overview-page .stat-number.stat-money { font-size: clamp(22px, 2.2vw, 32px); }
-#overview-page .stat-foot { align-self: end; margin-top: 8px; font-size: 12px; line-height: 1.45; overflow-wrap: anywhere; }
+#overview-page .stat-foot { align-self: end; margin-top: 8px; overflow-wrap: anywhere; }
 @media (max-width: 1120px) {
   #overview-page .status-strip { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
