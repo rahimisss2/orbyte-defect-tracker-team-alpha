@@ -20,9 +20,15 @@
           <span class="brand-name">orbyte<span>.</span></span>
         </a>
         <div class="rail-label">OPERATIONS</div>
-        <nav class="main-nav">
-          <button class="nav-link active" data-view="intake" type="button" aria-label="Floor Worker Portal"><span class="nav-icon" aria-hidden="true">＋</span><span>Floor Worker Portal</span></button>
-          <button class="nav-link" data-view="review" type="button" aria-label="Manager Control Center"><span class="nav-icon" aria-hidden="true">◎</span><span>Manager Control Center</span></button>
+        <nav class="main-nav" aria-label="Operations">
+          <button class="nav-link active" data-view="overview" type="button" aria-current="page"><span class="nav-icon" aria-hidden="true">◫</span><span>Control room</span></button>
+          <button class="nav-link" data-view="intake" type="button"><span class="nav-icon" aria-hidden="true">＋</span><span>Log incident</span></button>
+          <button class="nav-link" data-view="audit" type="button"><span class="nav-icon" aria-hidden="true">≡</span><span>Audit history</span></button>
+        </nav>
+        <div class="rail-label manager-label">MANAGER SECTION</div>
+        <nav class="main-nav manager-nav" aria-label="Manager section">
+          <button class="nav-link" data-view="manager" type="button"><span class="nav-icon" aria-hidden="true">↗</span><span>Manager dashboard</span></button>
+          <button class="nav-link" data-view="review" type="button"><span class="nav-icon" aria-hidden="true">◎</span><span>Review &amp; authorize</span><span class="nav-count" id="pending-nav-count">0</span></button>
         </nav>
         <div class="rail-bottom">
           <div class="shift-card">
@@ -35,7 +41,7 @@
 
       <main class="workspace">
         <header class="topbar">
-          <div class="breadcrumb"><span>Orbyte</span><i>/</i><strong id="crumb-current">Floor Worker Portal</strong></div>
+          <div class="breadcrumb"><span>Orbyte</span><i>/</i><strong id="crumb-current">Control room</strong></div>
           <div class="top-meta"><span class="live-pill"><span></span> LIVE WORKSPACE</span><span class="top-date" id="today-date"></span></div>
         </header>
 
@@ -43,23 +49,46 @@
           <section class="page-heading">
             <div>
               <p class="eyebrow">RETAIL CLAIMS OPERATIONS</p>
-              <h1>Control <span>room.</span></h1>
-              <p class="heading-sub">Delivery incidents, made reviewable. People stay in control.</p>
+              <h1 id="page-title">Control room</h1>
+              <p class="heading-sub" id="page-subtitle">A high-level overview of delivery incidents and claim activity.</p>
             </div>
           </section>
 
           <div class="notice" role="note">
             <span class="notice-mark">i</span>
-            <p><strong>Demo authorization only.</strong> No email is actually sent and no external supplier invoice is held. Tabs separate the workflow only; they do not enforce role-based access.</p>
+            <p><strong>Demo workspace.</strong> No email is actually sent and no external supplier invoice is held. The Manager Section separates workflows; it does not enforce sign-in or access permissions.</p>
             <span class="notice-tag">HUMAN-IN-THE-LOOP</span>
           </div>
 
-          <div class="portal-tabs" role="tablist" aria-label="Choose your portal">
-            <button class="portal-tab" id="worker-tab" role="tab" aria-selected="true" aria-controls="worker-tabpanel" tabindex="0" data-view="intake" type="button">👷 Floor Worker Portal</button>
-            <button class="portal-tab" id="manager-tab" role="tab" aria-selected="false" aria-controls="manager-tabpanel" tabindex="-1" data-view="review" type="button">📋 Manager Control Center</button>
-          </div>
+          <div class="error-state" id="workspace-error" role="alert" hidden><span id="workspace-error-message"></span> <button type="button" data-retry>Retry</button></div>
 
-          <section id="worker-tabpanel" class="portal-panel" role="tabpanel" aria-labelledby="worker-tab">
+          <section id="overview-page" data-page="overview" aria-label="Control room">
+            <div class="portal-heading"><p>All operations staff can view the current system summary.</p><span class="eyebrow" id="claim-count-label">0 RECORDS</span></div>
+            <div class="status-strip" aria-label="System summary">
+              <article class="stat-card">
+                <div class="stat-top"><span>ALL CLAIMS</span><span class="stat-symbol">↗</span></div>
+                <div class="stat-number" id="stat-total">—</div>
+                <div class="stat-foot">Incidents in this workspace</div>
+              </article>
+              <article class="stat-card">
+                <div class="stat-top"><span>AWAITING REVIEW</span><span class="status-dot amber"></span></div>
+                <div class="stat-number" id="stat-pending">—</div>
+                <div class="stat-foot">Active pending discrepancies</div>
+              </article>
+              <article class="stat-card">
+                <div class="stat-top"><span>AUTHORIZED · DEMO</span><span class="status-dot green"></span></div>
+                <div class="stat-number" id="stat-authorized">—</div>
+                <div class="stat-foot">Manager decisions recorded</div>
+              </article>
+              <article class="stat-card">
+                <div class="stat-top"><span>CLAIMED VALUE</span><span class="stat-symbol money">RM</span></div>
+                <div class="stat-number stat-money" id="stat-value">—</div>
+                <div class="stat-foot">Total incident value logged</div>
+              </article>
+            </div>
+          </section>
+
+          <section id="intake-page" data-page="intake" aria-label="Log incident" hidden>
             <div class="portal-heading"><p>Record delivery issues for a manager to review.</p><button class="button button-dark" type="button" data-jump="intake"><span class="button-plus" aria-hidden="true">+</span> Log an Incident</button></div>
             <section class="panel incident-panel" id="intake-panel">
               <div class="panel-heading">
@@ -89,77 +118,42 @@
             </section>
           </section>
 
-          <section id="manager-tabpanel" class="portal-panel" role="tabpanel" aria-labelledby="manager-tab" hidden>
-          <div class="portal-heading"><p>Review incidents and record manager authorization.</p><span class="eyebrow"><span id="claim-count-label">0 RECORDS</span> · <span id="pending-nav-count">0</span> PENDING</span></div>
-          <div class="status-strip" aria-label="Claims summary">
-            <article class="stat-card stat-total">
-              <div class="stat-top"><span>ALL CLAIMS</span><span class="stat-symbol">↗</span></div>
-              <div class="stat-number" id="stat-total">—</div>
-              <div class="stat-foot">Incidents in this workspace</div>
-            </article>
-            <article class="stat-card stat-pending">
-              <div class="stat-top"><span>AWAITING REVIEW</span><span class="status-dot amber"></span></div>
-              <div class="stat-number" id="stat-pending">—</div>
-              <div class="stat-foot">Needs a manager decision</div>
-            </article>
-            <article class="stat-card stat-authorized">
-              <div class="stat-top"><span>AUTHORIZED · DEMO</span><span class="status-dot green"></span></div>
-              <div class="stat-number" id="stat-authorized">—</div>
-              <div class="stat-foot">Recorded for audit history</div>
-            </article>
-            <article class="stat-card stat-exposure">
-              <div class="stat-top"><span>CLAIMED VALUE</span><span class="stat-symbol money">RM</span></div>
-              <div class="stat-number stat-money" id="stat-value">—</div>
-              <div class="stat-foot">Total incident value logged</div>
-            </article>
-          </div>
-
-          <div class="main-grid">
-            <div class="primary-column">
-              <section class="panel claims-panel">
-                <div class="panel-heading claims-heading">
-                  <div class="panel-title-group"><span class="section-index">02</span><div><p class="eyebrow">LIVE QUEUE</p><h2>Recent incidents</h2></div></div>
-                  <button class="text-button" type="button" data-jump="audit">View audit history <span>↗</span></button>
-                </div>
-                <div class="table-scroll">
-                  <table>
-                    <thead><tr><th>INCIDENT</th><th>SUPPLIER / ITEM</th><th>QUANTITY</th><th>CLAIM VALUE</th><th>STATUS</th><th></th></tr></thead>
-                    <tbody id="recent-claims"><tr><td colspan="6"><div class="table-skeleton"><span></span><span></span><span></span></div></td></tr></tbody>
-                  </table>
-                </div>
-                <div class="empty-state hidden" id="claims-empty"><div class="empty-graphic"><span>01</span><i></i><i></i></div><strong>No incidents logged yet</strong><p>When a floor worker submits a delivery issue, it will appear here for review.</p><button type="button" class="text-button" data-jump="intake">Log the first incident <span>↗</span></button></div>
-              </section>
+          <section id="manager-page" data-page="manager" aria-label="Manager dashboard" hidden>
+            <div class="portal-heading"><p>Financial exposure and active discrepancy counts, calculated from the same claim records.</p></div>
+            <div class="status-strip" aria-label="Financial metrics and cash leaks">
+              <article class="stat-card">
+                <div class="stat-top"><span>TOTAL CASH LEAKS</span><span class="stat-symbol money">RM</span></div>
+                <div class="stat-number stat-money" id="manager-total-value">—</div>
+                <div class="stat-foot">Recorded defect losses across all claims</div>
+              </article>
+              <article class="stat-card">
+                <div class="stat-top"><span>PENDING EXPOSURE</span><span class="status-dot amber"></span></div>
+                <div class="stat-number stat-money" id="manager-pending-value">—</div>
+                <div class="stat-foot">Losses awaiting manager authorization</div>
+              </article>
+              <article class="stat-card">
+                <div class="stat-top"><span>AUTHORIZED VALUE · DEMO</span><span class="status-dot green"></span></div>
+                <div class="stat-number stat-money" id="manager-authorized-value">—</div>
+                <div class="stat-foot">Approved locally, not recovered funds</div>
+              </article>
+              <article class="stat-card">
+                <div class="stat-top"><span>ACTIVE DISCREPANCIES</span><span class="stat-symbol">↗</span></div>
+                <div class="stat-number" id="manager-active-count">—</div>
+                <div class="stat-foot">Pending claims requiring a decision</div>
+              </article>
             </div>
+          </section>
 
-            <aside class="side-column">
-              <section class="review-card" id="review-panel">
-                <div class="review-topline"><span class="section-index light-index">03</span><span class="review-label">MANAGER DESK</span><span class="review-orbit">✳</span></div>
-                <h2>Review before<br>you release.</h2>
-                <p class="review-copy">Every claim remains a draft until a manager checks the details and authorizes it.</p>
-                <div class="review-metric"><span>WAITING ON YOU</span><strong id="review-pending-count">—</strong></div>
-                <button class="button button-light review-button" type="button" data-jump="review">Open review desk <span>↗</span></button>
-                <div class="review-foot">NO AUTO-SEND <span>·</span> HUMAN APPROVAL REQUIRED</div>
-              </section>
-              <section class="panel queue-panel">
-                <div class="queue-head"><div><p class="eyebrow">NEXT IN LINE</p><h3>Review queue</h3></div><span class="queue-count" id="queue-count">0</span></div>
-                <div id="queue-list" class="queue-list"><div class="queue-loading"><span></span><span></span></div></div>
-                <button class="queue-link" type="button" data-jump="review">Go to manager review <span>→</span></button>
-              </section>
-              <div class="side-note"><span class="note-mark">↳</span><p><strong>Keep the paper trail clear.</strong><br>Each recorded decision stays visible in audit history.</p></div>
-            </aside>
-          </div>
-
-          <section class="panel workspace-section" id="review-view">
-            <div class="section-page-heading"><div><p class="eyebrow">MANAGER & ACCOUNTING CONTROL CENTER</p><h2>Review & authorization</h2><p>Inspect the incident, adjust the draft, then record a manager decision.</p></div><span class="step-chip"><span></span> HUMAN APPROVAL REQUIRED</span></div>
+          <section class="panel workspace-section" id="review-view" data-page="review" aria-label="Review and authorize" hidden>
+            <div class="section-page-heading"><div><p class="eyebrow">MANAGER WORKSPACE</p><h2>Pending discrepancies</h2><p>Inspect the incident, edit the claim draft, then sign and authorize.</p></div><span class="step-chip"><span></span> HUMAN APPROVAL REQUIRED</span></div>
             <div id="review-content"></div>
           </section>
 
-          <section class="panel workspace-section" id="audit-view">
+          <section class="panel workspace-section" id="audit-view" data-page="audit" aria-label="Audit history" hidden>
             <div class="section-page-heading"><div><p class="eyebrow">TRACEABLE DECISIONS</p><h2>Audit history</h2><p>Pending and demo-authorized claims, with the value and decision record.</p></div><span class="audit-stamp">LOCAL WORKSPACE RECORDS</span></div>
             <div class="audit-toolbar"><span id="audit-total">0 RECORDS</span><div class="audit-legend"><span><i class="status-dot amber"></i> Pending review</span><span><i class="status-dot green"></i> Authorized · demo</span></div></div>
             <div class="table-scroll audit-table-scroll"><table><thead><tr><th>CLAIM ID / CREATED</th><th>SUPPLIER</th><th>ITEM</th><th>QTY</th><th>CLAIMED VALUE</th><th>DECISION</th><th>AUTHORIZED BY</th></tr></thead><tbody id="audit-claims"></tbody></table></div>
             <div class="empty-state hidden" id="audit-empty"><div class="empty-graphic"><span>LOG</span><i></i><i></i></div><strong>Nothing to audit yet</strong><p>Submitted and authorized claims will be recorded here.</p><button type="button" class="text-button" data-jump="intake">Log an incident <span>↗</span></button></div>
-          </section>
           </section>
 
           <footer class="page-footer"><span>ORBYTE SMART-DEFECT TRACKER</span><span>PRECISION IN EVERY HANDOFF <i>✳</i></span><span id="footer-time"></span></footer>

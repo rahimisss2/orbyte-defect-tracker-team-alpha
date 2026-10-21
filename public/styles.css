@@ -238,20 +238,14 @@ td:first-child, th:first-child { padding-left: 20px; }
 .review-empty p { color: #909c92; font-size: 10px; }
 .hidden { display: none !important; }
 [hidden] { display: none !important; }
-.portal-tabs { display: flex; gap: 8px; border-bottom: 1px solid var(--line-strong); margin: 22px 0 0; scroll-margin-top: 16px; }
-.portal-tab { border: 0; border-bottom: 3px solid transparent; padding: 15px 18px; background: transparent; color: var(--ink-soft); font-weight: 700; font-size: 13px; }
-.portal-tab:hover { background: var(--paper-deep); }
-.portal-tab[aria-selected="true"] { border-bottom-color: var(--accent); color: var(--accent-deep); background: var(--accent-pale); }
 .portal-heading { display: flex; gap: 12px; justify-content: space-between; align-items: center; padding: 20px 0; }
 .portal-heading p { margin: 0; color: var(--ink-soft); line-height: 1.6; font-size: 12px; }
 .portal-heading .eyebrow { margin: 0; white-space: nowrap; }
-#worker-tabpanel .incident-panel { max-width: 920px; }
+#intake-page .incident-panel { max-width: 920px; }
 #intake-panel, #audit-view { scroll-margin-top: 20px; }
 .main-nav { grid-template-columns: 1fr; }
 @media (max-width: 580px) {
-  .portal-tab { flex: 1; padding: 13px 8px; font-size: 11px; }
   .portal-heading { align-items: flex-start; flex-direction: column; }
-  .rail .main-nav { grid-template-columns: repeat(2, 1fr); }
 }
 .page-footer { display: flex; justify-content: space-between; padding: 24px 0 3px; color: #a0a9a0; font: 8px var(--mono); letter-spacing: .07em; }
 .page-footer i { color: #ce7958; font-style: normal; padding-left: 4px; }
@@ -270,6 +264,31 @@ td:first-child, th:first-child { padding-left: 20px; }
 @keyframes enter { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 .error-state { padding: 20px; border: 1px solid #ebd5c8; background: #fbf1e9; color: #85533b; border-radius: 6px; font-size: 10px; }
 .error-state button { border: 0; background: transparent; color: #a24d32; font-weight: 700; text-decoration: underline; margin-left: 5px; }
+.manager-label { margin-top: 28px; }
+#workspace-error { margin-bottom: 18px; }
+#manager-page .stat-card { min-height: 134px; }
+#manager-page .stat-foot { line-height: 1.6; }
+@media (max-width: 850px) {
+  .app-shell .rail { position: static; inset: auto; width: 100%; height: auto; display: block; padding: 18px; }
+  .app-shell .rail .brand { display: flex; padding: 0 10px 20px; }
+  .app-shell .rail .brand-name { display: block; }
+  .app-shell .rail .rail-label { display: block; padding: 0 10px 8px; }
+  .app-shell .rail .manager-label { margin-top: 18px; }
+  .app-shell .rail .main-nav { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); width: 100%; }
+  .app-shell .rail .manager-nav { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .app-shell .rail .nav-link { display: flex; justify-content: flex-start; padding: 10px; height: auto; min-height: 42px; gap: 8px; text-align: left; }
+  .app-shell .rail .nav-link > span { display: inline; }
+  .app-shell .rail .main-nav .nav-link > span:not(.nav-icon):not(.nav-count) { display: block; }
+  .app-shell .rail .nav-link.active { box-shadow: inset 2px 0 #e47b55; }
+  .app-shell .rail .nav-count { display: grid; position: static; transform: none; margin-left: auto; }
+  .app-shell .rail .rail-bottom { display: none; }
+  .app-shell .workspace { margin-left: 0; padding-bottom: 0; }
+}
+@media (max-width: 580px) {
+  .app-shell .rail { padding: 14px; }
+  .app-shell .rail .nav-link { font-size: 11px; }
+  .app-shell .rail .nav-link .nav-icon { display: none; }
+}
 @media (min-width: 1500px) { .content-wrap { padding-left: 54px; padding-right: 54px; } }
 @media (max-width: 1120px) { .rail { width: 194px; } .workspace { margin-left: 194px; } .content-wrap { padding-left: 25px; padding-right: 25px; } .topbar { padding: 0 25px; } .main-grid { grid-template-columns: minmax(0,1.55fr) minmax(220px,.8fr); gap: 12px; } .stat-strip { gap: 7px; } .stat-card { padding-left: 12px; padding-right: 12px; } #incident-form { margin-left: 0; } .panel-intro { margin-left: 0; } }
 @media (max-width: 850px) { .rail { width: 66px; padding: 20px 8px 14px; align-items: center; } .brand { padding: 0 0 37px; } .brand-name, .rail-label, .nav-link > span:not(.nav-icon):not(.nav-dot):not(.nav-count), .shift-card div, .rail-foot { display: none; } .nav-link { justify-content: center; padding: 0; } .nav-icon { font-size: 20px; } .nav-count { position: absolute; transform: translate(15px,-11px); min-width: 15px; height: 15px; font-size: 8px; } .main-nav { width: 100%; } .shift-card { padding: 10px; } .workspace { margin-left: 66px; } .status-strip { grid-template-columns: repeat(2, 1fr); } .main-grid { grid-template-columns: 1fr; } .side-column { grid-template-columns: 1fr 1fr; align-items: start; } .side-note { grid-column: 1 / -1; } .review-claim-grid { grid-template-columns: 1fr; } .review-claim-actions { flex-wrap: wrap; } }

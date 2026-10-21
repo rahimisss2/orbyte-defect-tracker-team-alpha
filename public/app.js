@@ -1,7 +1,7 @@
 (() => {
   "use strict";
 
-  const state = { suppliers: [], claims: [], view: "intake", selectedSupplier: "" };
+  const state = { suppliers: [], claims: [], view: "overview", selectedSupplier: "" };
   const $ = (selector, root = document) => root.querySelector(selector);
   const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
   const formatRM = (amount) => `RM ${Number(amount || 0).toFixed(2)}`;
@@ -78,40 +78,12 @@
     $("#stat-authorized").textContent = String(authorized.length).padStart(2, "0");
     $("#stat-value").textContent = formatRM(total);
     $("#pending-nav-count").textContent = pending.length;
-    $("#review-pending-count").textContent = pending.length;
-    $("#queue-count").textContent = pending.length;
+    $("#manager-total-value").textContent = formatRM(total);
+    $("#manager-pending-value").textContent = formatRM(pending.reduce((sum, claim) => sum + Number(claim.loss || 0), 0));
+    $("#manager-authorized-value").textContent = formatRM(authorized.reduce((sum, claim) => sum + Number(claim.loss || 0), 0));
+    $("#manager-active-count").textContent = String(pending.length).padStart(2, "0");
     $("#claim-count-label").textContent = `${state.claims.length} ${state.claims.length === 1 ? "RECORD" : "RECORDS"}`;
     $("#audit-total").textContent = `${state.claims.length} ${state.claims.length === 1 ? "RECORD" : "RECORDS"}`;
-  }
-
-  function claimRow(claim, withAction = true) {
-    const itemCell = `${esc(claim.supplier)}<span class="item-cell">${esc(claim.item)}</span>`;
-    const action = withAction && claim.status === "pending_review" ? `<button class="row-action" type="button" data-review-id="${esc(claim.id)}">Review →</button>` : "";
-    return `<tr>
-      <td><span class="claim-id" title="${esc(claim.id)}">${esc(claimLabel(claim.id))}</span><span class="claim-date">${esc(safeDate(claim.createdAt))}</span></td>
-      <td><span class="supplier-cell">${itemCell}</span></td>
-      <td>${esc(claim.quantity)} units</td>
-      <td><span class="amount">${formatRM(claim.loss)}</span></td>
-      <td>${statusMarkup(claim)}</td>
-      <td>${action}</td>
-    </tr>`;
-  }
-
-  function renderRecent() {
-    const sorted = [...state.claims].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).slice(0, 5);
-    const body = $("#recent-claims");
-    body.innerHTML = sorted.map((claim) => claimRow(claim)).join("");
-    $("#claims-empty").classList.toggle("hidden", state.claims.length > 0);
-    $(".table-scroll", $(".claims-panel")).classList.toggle("hidden", state.claims.length === 0);
-  }
-
-  function renderQueue() {
-    const pending = getPending().slice(0, 4);
-    const queue = $("#queue-list");
-    queue.innerHTML = pending.length ? pending.map((claim) => `<button class="queue-item" type="button" data-review-id="${esc(claim.id)}">
-      <span><strong>${esc(claim.supplier)}</strong><small>${esc(claimLabel(claim.id))} · ${esc(claim.quantity)} units</small></span>
-      <span class="amount">${formatRM(claim.loss)}</span>
-    </button>`).join("") : '<div class="queue-empty">All clear. No claims waiting for review.</div>';
   }
 
   function renderReview() {
@@ -149,33 +121,34 @@
 
   function render() {
     renderSummary();
-    renderRecent();
-    renderQueue();
     renderReview();
     renderAudit();
   }
 
   function goTo(view) {
-    const validViews = ["overview", "intake", "review", "audit"];
-    if (!validViews.includes(view)) return;
+    const pages = {
+      overview: ["Control room", "A high-level overview of delivery incidents and claim activity."],
+      intake: ["Log incident", "Floor Worker Portal — record defective deliveries for manager review."],
+      audit: ["Audit history", "The complete live audit trail, available to all operations staff."],
+      manager: ["Manager dashboard", "Financial metrics, cash leaks, and active claim counts."],
+      review: ["Review & authorize", "Manager workspace — review pending discrepancies, edit claim letters, and authorize."]
+    };
+    if (!Object.hasOwn(pages, view)) return;
     state.view = view;
-    const isManager = view === "review" || view === "audit";
-    $("#worker-tabpanel").hidden = isManager;
-    $("#manager-tabpanel").hidden = !isManager;
-    $$(".portal-tab").forEach((button) => {
-      const selected = (button.dataset.view === "review") === isManager;
-      button.setAttribute("aria-selected", String(selected));
-      button.tabIndex = selected ? 0 : -1;
+    $$("[data-page]").forEach((page) => {
+      page.hidden = page.dataset.page !== view;
     });
-    $$(".nav-link").forEach((button) => button.classList.toggle("active", (button.dataset.view === "review") === isManager));
-    $("#crumb-current").textContent = isManager ? "Manager Control Center" : "Floor Worker Portal";
-    if (view === "audit") {
-      $("#audit-view").scrollIntoView({ behavior: "smooth", block: "start" });
-    } else if (view === "intake") {
-      $("#intake-panel").scrollIntoView({ behavior: "smooth", block: "start" });
-    } else {
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    }
+    $$(".nav-link").forEach((button) => {
+      const selected = button.dataset.view === view;
+      button.classList.toggle("active", selected);
+      if (selected) button.setAttribute("aria-current", "page");
+      else button.removeAttribute("aria-current");
+    });
+    $("#crumb-current").textContent = pages[view][0];
+    $("#page-title").textContent = pages[view][0];
+    $("#page-subtitle").textContent = pages[view][1];
+    if (window.location.hash !== `#${view}`) window.location.hash = view;
+    window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
   async function loadBootstrap() {
@@ -189,18 +162,15 @@
       renderSupplierOptions();
       render();
       $("#intake-message").textContent = "";
+      $("#workspace-error").hidden = true;
     } catch (error) {
-      const message = esc(error.message || "Unable to load workspace data.");
       $("#supplier-select").innerHTML = '<option value="">Workspace unavailable</option>';
       $("#supplier-select").disabled = true;
-      $("#recent-claims").innerHTML = `<tr><td colspan="6"><div class="error-state">Could not load live workspace data. <button type="button" data-retry>Retry</button><br>${message}</div></td></tr>`;
-      $("#queue-list").innerHTML = `<div class="error-state">Could not load the review queue. <button type="button" data-retry>Retry</button></div>`;
       $("#review-content").innerHTML = `<div class="error-state">Could not load manager review. <button type="button" data-retry>Retry</button></div>`;
       $("#audit-claims").innerHTML = `<tr><td colspan="7"><div class="error-state">Could not load audit history. <button type="button" data-retry>Retry</button></div></td></tr>`;
-      $("#stat-total").textContent = "—";
-      $("#stat-pending").textContent = "—";
-      $("#stat-authorized").textContent = "—";
-      $("#stat-value").textContent = "—";
+      $$(".stat-number").forEach((metric) => { metric.textContent = "—"; });
+      $("#workspace-error-message").textContent = `Could not load workspace records: ${error.message || "Unknown error"}`;
+      $("#workspace-error").hidden = false;
       showToast("Live workspace data could not be loaded.", true);
     } finally {
       setLoading(false);
@@ -295,9 +265,6 @@
     const nav = event.target.closest("[data-view]");
     if (nav) {
       goTo(nav.dataset.view);
-      if (nav.classList.contains("portal-tab")) {
-        $(".portal-tabs").scrollIntoView({ behavior: "smooth", block: "start" });
-      }
       return;
     }
     const review = event.target.closest("[data-review-id]");
@@ -315,20 +282,7 @@
     if (event.target.closest("[data-retry]")) loadBootstrap();
   });
 
-  $(".portal-tabs").addEventListener("keydown", (event) => {
-    const tabs = $$(".portal-tab");
-    const index = tabs.indexOf(event.target);
-    if (index === -1) return;
-    let next;
-    if (event.key === "ArrowRight") next = (index + 1) % tabs.length;
-    else if (event.key === "ArrowLeft") next = (index - 1 + tabs.length) % tabs.length;
-    else if (event.key === "Home") next = 0;
-    else if (event.key === "End") next = tabs.length - 1;
-    else return;
-    event.preventDefault();
-    tabs[next].focus();
-    tabs[next].click();
-  });
+  window.addEventListener("hashchange", () => goTo(window.location.hash.slice(1) || "overview"));
 
   $("#supplier-select").addEventListener("change", (event) => {
     state.selectedSupplier = event.target.value;
@@ -339,5 +293,6 @@
   const now = new Date();
   $("#today-date").textContent = now.toLocaleDateString(undefined, { weekday: "short", day: "2-digit", month: "short", year: "numeric" }).toUpperCase();
   $("#footer-time").textContent = now.toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" });
+  goTo(window.location.hash.slice(1) || "overview");
   loadBootstrap();
 })();
