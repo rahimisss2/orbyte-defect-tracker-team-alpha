@@ -14,7 +14,7 @@
   </head>
   <body>
     <div class="app-shell">
-      <aside class="rail" aria-label="Primary navigation">
+      <aside class="rail" id="primary-sidebar" aria-label="Primary navigation">
         <a class="brand" href="/" aria-label="Orbyte home">
           <span class="brand-mark"><span></span><span></span><span></span><span></span></span>
           <span class="brand-name">orbyte<span>.</span></span>
@@ -38,10 +38,18 @@
           <div class="rail-foot">ORBYTE SYSTEMS <span>·</span> 01.24</div>
         </div>
       </aside>
+      <button class="sidebar-backdrop" id="sidebar-backdrop" type="button" tabindex="-1" aria-hidden="true"></button>
 
       <main class="workspace">
         <header class="topbar">
-          <div class="breadcrumb"><span>Orbyte</span><i>/</i><strong id="crumb-current">Control room</strong></div>
+          <div class="topbar-leading">
+            <button class="sidebar-toggle" id="sidebar-toggle" type="button" aria-controls="primary-sidebar" aria-expanded="true" aria-label="Hide navigation">
+              <svg viewBox="0 0 20 20" aria-hidden="true" focusable="false">
+                <path d="M3 5h14M3 10h14M3 15h14" />
+              </svg>
+            </button>
+            <div class="breadcrumb"><span>Orbyte</span><i>/</i><strong id="crumb-current">Control room</strong></div>
+          </div>
           <div class="top-meta"><span class="live-pill"><span></span> LIVE WORKSPACE</span><span class="top-date" id="today-date"></span></div>
         </header>
 

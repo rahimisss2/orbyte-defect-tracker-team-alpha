@@ -256,6 +256,50 @@
     }
   }
 
+  const sidebarShell = $(".app-shell");
+  const sidebarRail = $("#primary-sidebar");
+  const sidebarToggle = $("#sidebar-toggle");
+  const sidebarBackdrop = $("#sidebar-backdrop");
+  const sidebarContent = $(".content-wrap");
+  const sidebarMedia = window.matchMedia("(max-width: 850px)");
+
+  function setSidebarCollapsed(collapsed) {
+    const mobileOpen = sidebarMedia.matches && !collapsed;
+    if (collapsed && sidebarRail.contains(document.activeElement)) sidebarToggle.focus();
+    sidebarShell.classList.toggle("sidebar-collapsed", collapsed);
+    sidebarToggle.setAttribute("aria-expanded", String(!collapsed));
+    sidebarToggle.setAttribute("aria-label", collapsed ? "Show navigation" : "Hide navigation");
+    sidebarRail.inert = collapsed;
+    sidebarRail.setAttribute("aria-hidden", String(collapsed));
+    sidebarContent.inert = mobileOpen;
+    document.body.classList.toggle("sidebar-open", mobileOpen);
+  }
+
+  sidebarToggle.addEventListener("click", () => {
+    setSidebarCollapsed(!sidebarShell.classList.contains("sidebar-collapsed"));
+  });
+  sidebarBackdrop.addEventListener("click", () => setSidebarCollapsed(true));
+  sidebarMedia.addEventListener("change", () => setSidebarCollapsed(sidebarMedia.matches));
+  document.addEventListener("keydown", (event) => {
+    if (!sidebarMedia.matches || sidebarShell.classList.contains("sidebar-collapsed")) return;
+    if (event.key === "Escape") {
+      event.preventDefault();
+      setSidebarCollapsed(true);
+      sidebarToggle.focus();
+    } else if (event.key === "Tab") {
+      const targets = [...$$('a[href], button:not(:disabled)', sidebarRail), sidebarToggle];
+      const first = targets[0];
+      const last = targets[targets.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    }
+  });
+
   document.addEventListener("click", (event) => {
     const jump = event.target.closest("[data-jump]");
     if (jump) {
@@ -265,6 +309,7 @@
     const nav = event.target.closest("[data-view]");
     if (nav) {
       goTo(nav.dataset.view);
+      if (sidebarMedia.matches) setSidebarCollapsed(true);
       return;
     }
     const review = event.target.closest("[data-review-id]");
@@ -293,6 +338,7 @@
   const now = new Date();
   $("#today-date").textContent = now.toLocaleDateString(undefined, { weekday: "short", day: "2-digit", month: "short", year: "numeric" }).toUpperCase();
   $("#footer-time").textContent = now.toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" });
+  setSidebarCollapsed(sidebarMedia.matches);
   goTo(window.location.hash.slice(1) || "overview");
   loadBootstrap();
 })();
