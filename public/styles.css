@@ -576,3 +576,13 @@ td:first-child, th:first-child { padding-left: 20px; }
   #overview-page .portal-heading { align-items: center; }
   #overview-page .portal-heading p { flex-basis: 100%; }
 }
+
+@media (max-width: 500px) {
+  h1 {
+    font-size: 26px !important;
+  }
+  div[class*="demo"], .card, [class*="card"] {
+    padding: 16px !important;
+    margin-bottom: 12px !important;
+  }
+}
