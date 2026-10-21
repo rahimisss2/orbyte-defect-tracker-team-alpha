@@ -15,6 +15,36 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="auto",
 )
+st.markdown(
+    """
+    <style>
+    .main .block-container,
+    [data-testid="stMainBlockContainer"] {
+        animation: fadeIn ease 1s;
+        -webkit-animation: fadeIn ease 1s;
+    }
+
+    @keyframes fadeIn {
+        0% { opacity: 0; transform: translateY(10px); }
+        100% { opacity: 1; transform: translateY(0); }
+    }
+
+    @-webkit-keyframes fadeIn {
+        0% { opacity: 0; transform: translateY(10px); }
+        100% { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .main .block-container,
+        [data-testid="stMainBlockContainer"] {
+            animation: none !important;
+            -webkit-animation: none !important;
+        }
+    }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
 apply_theme()
 st.logo(str(Path(__file__).resolve().parent / "assets" / "orbyte-mark.svg"), size="large")
 
