@@ -7,6 +7,7 @@ from pathlib import Path
 import streamlit as st
 
 from database import read_database
+from page_transition import show_page_transition
 from theme import apply_theme
 
 st.set_page_config(
@@ -66,6 +67,8 @@ page = st.navigation({
         st.Page("screens/review.py", title="Review & authorize", icon=":material/task_alt:", url_path="review"),
     ],
 }, expanded=True)
+
+show_page_transition(page.url_path)
 
 with st.sidebar:
     st.divider()
