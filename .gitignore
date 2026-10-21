@@ -1,2 +1,7 @@
 node_modules/
 synthetic_db.json
+.pythonlibs/
+__pycache__/
+*.py[cod]
+*.json.lock
+.pytest_cache/
