@@ -76,7 +76,7 @@ button:focus-visible, a:focus-visible, select:focus-visible, input:focus-visible
 .main-nav { display: grid; gap: 5px; }
 .nav-link {
   position: relative;
-  border: 0;
+  border: 1px solid transparent;
   color: #c2d5d8;
   background: transparent;
   border-radius: 7px;
@@ -86,16 +86,18 @@ button:focus-visible, a:focus-visible, select:focus-visible, input:focus-visible
   align-items: center;
   gap: 12px;
   text-align: left;
-  padding: 0 12px;
+  padding: 0 11px;
   font-size: 12px;
-  transition: background .18s ease, color .18s ease, transform .18s ease;
+  transition: background-color .19s ease, border-color .19s ease, box-shadow .19s ease, color .19s ease, transform .19s ease;
 }
 .nav-link:hover { background: rgba(167, 226, 221, .1); color: #fff; transform: translateX(2px); }
 .nav-link.active {
   color: #f3fffd;
   background: #1d4147;
+  border-color: rgba(66, 194, 178, .28);
   box-shadow: inset 2px 0 var(--accent), 0 4px 12px rgba(3, 14, 20, .12);
 }
+.nav-link:active { background-color: #244d52; transform: translateX(1px); }
 .nav-icon { width: 18px; color: #a7c4c7; font-size: 18px; line-height: 1; text-align: center; }
 .nav-link.active .nav-icon { color: #69dbcb; }
 .nav-dot { width: 5px; height: 5px; border-radius: 99px; background: var(--accent); margin-left: auto; }
@@ -156,10 +158,13 @@ h1 span { color: #a5c6c5; }
   font-size: 13px;
   font-weight: 700;
   letter-spacing: -.1px;
-  transition: transform .18s ease, background .18s ease, box-shadow .18s ease, border-color .18s ease;
+  transition: transform .19s ease, background-color .19s ease, box-shadow .19s ease, border-color .19s ease, color .19s ease, filter .19s ease;
 }
 .button:hover { transform: translateY(-1px); box-shadow: 0 7px 15px rgba(3, 11, 19, .22); }
 .button:active { transform: translateY(0); }
+.button:not(:disabled):active { filter: brightness(1.04); }
+button:not(.nav-link):not(.button) { transition: color .19s ease, background-color .19s ease, filter .19s ease; }
+button:not(.nav-link):not(.button):not(:disabled):active { filter: brightness(1.04); }
 .button-dark { background: #24474a; color: #e7fbf6; border-color: #356265; }
 .button-dark:hover { background: #2b5859; border-color: #4b8881; }
 .button-plus { color: #70dfcf; font-size: 17px; font-weight: 400; }
@@ -321,7 +326,7 @@ td:first-child, th:first-child { padding-left: 20px; }
 .note-mark { color: #86d9cc; font-size: 14px; }
 .side-note p { font-size: 9px; line-height: 1.6; margin: 0; }
 .side-note strong { color: #d9e8e8; }
-.workspace-section { margin-top: 20px; padding: 25px; animation: enter .25s ease both; }
+.workspace-section { margin-top: 20px; padding: 25px; }
 .section-page-heading { display: flex; align-items: center; justify-content: space-between; gap: 15px; margin-bottom: 22px; }
 .section-page-heading h2 { font-size: 23px; letter-spacing: -1px; }
 .section-page-heading > div > p:last-child { color: #bdcbd0; font-size: 13px; line-height: 1.6; margin: 8px 0 0; }
@@ -355,6 +360,7 @@ td:first-child, th:first-child { padding-left: 20px; }
 .review-empty p { color: #c0cdd1; font-size: 10px; }
 .hidden { display: none !important; }
 [hidden] { display: none !important; }
+[data-page]:not([hidden]) { animation: enter .2s ease-out; }
 .portal-heading { display: flex; gap: 12px; justify-content: space-between; align-items: center; padding: 20px 0; }
 .portal-heading p { margin: 0; color: var(--ink-soft); line-height: 1.6; font-size: 12px; }
 .portal-heading .eyebrow { margin: 0; white-space: nowrap; }
@@ -380,6 +386,11 @@ td:first-child, th:first-child { padding-left: 20px; }
 .loader-mark i:nth-child(3) { animation-delay: .3s; }
 @keyframes bars { to { transform: scaleY(.55); opacity: .55; } }
 @keyframes enter { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+@media (prefers-reduced-motion: reduce) {
+  [data-page]:not([hidden]) { animation: none; }
+  .nav-link, .button, button:not(.nav-link):not(.button) { transition: none; }
+  .nav-link:hover, .nav-link:active, .button:hover, .button:active { transform: none; }
+}
 .error-state { padding: 14px 16px; border: 1px solid #966261; background: #472f34; color: #ffe0da; border-radius: 7px; font-size: 10px; }
 .error-state button { border: 0; background: transparent; color: #ffb5a7; font-weight: 700; text-decoration: underline; margin-left: 5px; }
 .error-state button:hover { color: #fff; }
