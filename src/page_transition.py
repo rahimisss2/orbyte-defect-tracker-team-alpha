@@ -10,11 +10,11 @@ def show_page_transition(page_path: str) -> None:
     if st.session_state.get("_orbyte_transition_page") == page_path:
         return
 
-    progress = st.progress(0, text="Memuatkan halaman…")
+    progress = st.progress(0, text="Loading page…")
     try:
         for value in range(5, 101, 5):
             time.sleep(0.025)
-            progress.progress(value, text="Memuatkan halaman…")
+            progress.progress(value, text="Loading page…")
     finally:
         progress.empty()
 
