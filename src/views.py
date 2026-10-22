@@ -34,8 +34,6 @@ def metric_cards(cards):
 
 def control_room():
     stats = summarize(st.session_state["database"]["claims"])
-    st.caption("A high-level overview of delivery incidents and claim activity.")
-    st.write("All operations staff can view the current system summary.")
     if st.button("Log an Incident", type="primary", icon=":material/add:"):
         st.switch_page("screens/log_incident.py")
     metric_cards([
