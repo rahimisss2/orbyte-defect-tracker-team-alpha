@@ -9,6 +9,7 @@ from database import read_database
 from navigation import render_navigation
 from page_transition import show_page_transition
 from theme import apply_theme
+from welcome import render_welcome
 
 st.set_page_config(
     page_title="Orbyte · Smart-Defect Tracker",
@@ -134,17 +135,19 @@ page = st.navigation({
 }, position="hidden")
 
 if page.url_path == "":
-    with st.container(key="control-room-welcome"):
-        st.markdown(
-            """
-            <section class="orbyte-home-hero" aria-label="Control room overview">
-              <p class="hero-kicker">Operations overview</p>
-              <h2>Welcome to your Control Room</h2>
-              <p class="hero-copy">A high-level overview of delivery incidents and claim activity. All operations staff can view the current system summary.</p>
-            </section>
-            """,
-            unsafe_allow_html=True,
-        )
+    render_welcome(
+        "Welcome to your Control Room",
+        "Operations overview",
+        "A high-level overview of delivery incidents and claim activity. All operations staff can view the current system summary.",
+        key="control-room-welcome",
+    )
+elif page.url_path == "manager":
+    render_welcome(
+        "Welcome to Manager Section",
+        "Management overview",
+        "Monitor financial exposure, track active discrepancies, and review claims awaiting authorization.",
+        key="manager-welcome",
+    )
 
 render_navigation(page.url_path)
 show_page_transition(page.url_path)
