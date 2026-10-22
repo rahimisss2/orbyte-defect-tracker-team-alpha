@@ -133,6 +133,19 @@ page = st.navigation({
     ],
 }, position="hidden")
 
+if page.url_path == "":
+    with st.container(key="control-room-welcome"):
+        st.markdown(
+            """
+            <section class="orbyte-home-hero" aria-label="Control room overview">
+              <p class="hero-kicker">Operations overview</p>
+              <h2>Welcome to your Control Room</h2>
+              <p class="hero-copy">A high-level overview of delivery incidents and claim activity. All operations staff can view the current system summary.</p>
+            </section>
+            """,
+            unsafe_allow_html=True,
+        )
+
 render_navigation(page.url_path)
 show_page_transition(page.url_path)
 

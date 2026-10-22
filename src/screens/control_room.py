@@ -9,7 +9,7 @@ with st.container(key="control-room-home"):
     st.markdown(
         """
         <style>
-        .st-key-control-room-home .orbyte-home-hero {
+        .st-key-control-room-welcome .orbyte-home-hero {
           position: relative;
           isolation: isolate;
           overflow: hidden;
@@ -23,7 +23,7 @@ with st.container(key="control-room-home"):
             linear-gradient(118deg, #172b3b 0%, #1d3846 54%, #1a3240 100%);
           box-shadow: 0 18px 42px rgba(3, 11, 19, .24), inset 0 1px rgba(231, 250, 247, .08);
         }
-        .st-key-control-room-home .orbyte-home-hero::after {
+        .st-key-control-room-welcome .orbyte-home-hero::after {
           position: absolute;
           z-index: -1;
           top: -3.5rem;
@@ -35,21 +35,21 @@ with st.container(key="control-room-home"):
           box-shadow: 0 0 0 1.7rem rgba(129, 208, 199, .035), 0 0 0 3.4rem rgba(129, 208, 199, .025);
           content: "";
         }
-        .st-key-control-room-home .orbyte-home-hero .hero-kicker {
+        .st-key-control-room-welcome .orbyte-home-hero .hero-kicker {
           margin: 0 0 .5rem;
           color: #9bd2cb !important;
           font: 500 .65rem/1.4 var(--orbyte-mono) !important;
           letter-spacing: .14em;
           text-transform: uppercase;
         }
-        .st-key-control-room-home .orbyte-home-hero h2 {
+        .st-key-control-room-welcome .orbyte-home-hero h2 {
           max-width: 720px;
           margin: 0 0 .55rem;
           color: #f0f6f6 !important;
           font: 800 clamp(1.55rem, 3vw, 2.25rem)/1.12 var(--orbyte-display) !important;
           letter-spacing: -.045em !important;
         }
-        .st-key-control-room-home .orbyte-home-hero .hero-copy {
+        .st-key-control-room-welcome .orbyte-home-hero .hero-copy {
           max-width: 650px;
           margin: 0;
           color: #c1d3d7 !important;
@@ -95,10 +95,10 @@ with st.container(key="control-room-home"):
           outline-offset: 4px;
         }
         @media (max-width: 767px) {
-          .st-key-control-room-home .orbyte-home-hero {
+          .st-key-control-room-welcome .orbyte-home-hero {
             padding: 1.25rem 1.1rem;
           }
-          .st-key-control-room-home .orbyte-home-hero::after {
+          .st-key-control-room-welcome .orbyte-home-hero::after {
             right: -6rem;
             opacity: .65;
           }
@@ -109,16 +109,6 @@ with st.container(key="control-room-home"):
           }
         }
         </style>
-        """,
-        unsafe_allow_html=True,
-    )
-    st.markdown(
-        """
-        <section class="orbyte-home-hero" aria-label="Control room overview">
-          <p class="hero-kicker">Operations overview</p>
-          <h2>Welcome to your Control Room</h2>
-          <p class="hero-copy">A high-level overview of delivery incidents and claim activity. All operations staff can view the current system summary.</p>
-        </section>
         """,
         unsafe_allow_html=True,
     )
