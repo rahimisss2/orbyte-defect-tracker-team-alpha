@@ -2,6 +2,10 @@ run = "streamlit run src/main.py"
 
 modules = ["python-3.12"]
 
+[env]
+# Disable user-site installs during the publishing package-install phase.
+PIP_USER = "false"
+
 [workflows]
 runButton = "Project"
 
