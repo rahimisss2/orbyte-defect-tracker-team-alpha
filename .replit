@@ -1,3 +1,5 @@
+run = "streamlit run src/main.py"
+
 modules = ["python-3.12"]
 
 [workflows]
@@ -30,3 +32,12 @@ externalPort = 80
 
 [nix]
 channel = "stable-25_05"
+
+[deployment]
+deploymentTarget = "cloudrun"
+run = "streamlit run src/main.py"
+
+[userenv]
+
+[userenv.production]
+PIP_USER = "false"
