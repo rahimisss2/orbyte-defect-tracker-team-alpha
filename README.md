@@ -9,7 +9,7 @@ An automated supply chain management application built with **Python Streamlit**
                         SDG 9 - Accelerates enterprise digital adoption.
 * **Team Leader:** CHE AHMAD RAHIMI BIN CHE ROZAID
 * **University:** UNIVERSITI TEKNIKAL MALAYSIA MELAKA (UTeM)
-* **Number of members:** 4
+* **Number of members:** 2
 
 ## Links
 * **Github Repository:** https://github.com/rahimisss2/orbyte-defect-tracker-team-alpha
