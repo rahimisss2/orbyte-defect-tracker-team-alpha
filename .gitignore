@@ -5,3 +5,5 @@ __pycache__/
 *.py[cod]
 *.json.lock
 .pytest_cache/
+.agents/
+attached_assets/
