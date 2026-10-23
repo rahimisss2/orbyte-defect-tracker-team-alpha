@@ -1,4 +1,4 @@
-# 🛡️ Orbyte Smart-Defect Tracker (Team Alpha)
+# 🛡️ Orbyte Smart-Defect Tracker (Team FAIX)
 
 An automated supply chain management application built with **Python Streamlit** for SMEs to track defective deliveries, generate claim letters, and maintain a shared audit log.
 
