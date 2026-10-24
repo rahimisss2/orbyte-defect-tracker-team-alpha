@@ -132,7 +132,9 @@ def record_authorization(claim_id):
         st.session_state["flash"] = ("success", "Manager authorization recorded locally for demo purposes only.")
 
 
-def review_authorize():
+def review_authorize(*, allow_simulated_fallback=False):
+    from ai_panel import render_ai_panel
+
     st.caption("Manager workspace — inspect the incident, edit the claim draft, then sign and authorize.")
     pending = sorted(
         (claim for claim in st.session_state["database"]["claims"] if claim["status"] == "pending_review"),
@@ -159,11 +161,18 @@ def review_authorize():
                 st.text(f"{claim['quantity']} units · {rm(claim['loss'])}")
                 st.caption("FLOOR WORKER NOTES")
                 st.text(claim["notes"] or "No additional notes.")
+            render_ai_panel(
+                claim, st.session_state["database"]["claims"],
+                allow_simulated_fallback=allow_simulated_fallback,
+            )
             with draft:
+                letter_key = f"letter_{claim['id']}"
+                if letter_key not in st.session_state:
+                    st.session_state[letter_key] = claim.get("letter", "")
                 st.text_area(
-                    "Claim letter draft", value=claim.get("letter", ""),
-                    height=310, max_chars=10_000, key=f"letter_{claim['id']}", persist_state="session",
-                    help="Template-generated draft, editable before authorization. No external AI service is connected.",
+                    "Claim letter draft", value=None,
+                    height=310, max_chars=10_000, key=letter_key, persist_state="session",
+                    help="Editable template draft. Generate an optional live Gemini review and insert its paragraph below before signing.",
                 )
             st.text_input(
                 "eSign · Manager full name", max_chars=160, key=f"signature_{claim['id']}",

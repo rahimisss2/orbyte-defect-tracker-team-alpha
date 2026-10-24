@@ -8,8 +8,11 @@ import streamlit as st
 from database import read_database
 from navigation import render_navigation
 from page_transition import show_page_transition
+from runtime_secrets import configure_replit_secrets
 from theme import apply_theme
 from welcome import render_welcome
+
+configure_replit_secrets()
 
 st.set_page_config(
     page_title="Orbyte · Smart-Defect Tracker",

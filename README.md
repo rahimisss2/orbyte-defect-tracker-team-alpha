@@ -41,7 +41,7 @@ A modular 5-step digital workflow covering a real-time control room, rapid incid
 | Frontend | Python (Streamlit Framework) 
 | Backend | Python 3.12 
 | Database | JSON (`synthetic_db.json` with File-Locking engine) 
-| AI / Compute | Replit Core Workspace 
+| AI / Compute | Google Gemini (`gemini-flash-latest`) with a labelled 504 simulation fallback
 | Hosting / Dev | Replit Cloud Deployment (.replit.app) 
 
 ### Repository Directory Structure:
@@ -92,13 +92,61 @@ User (Staff/Manager) ➔ Streamlit Frontend (UI) ➔ Python Backend Logic (src/m
    streamlit run src/main.py
    ```
 
+## Live AI review
+
+This remains a **local demo**: letters start from a template with optional live
+Gemini analysis and manager-controlled paragraph insertion; authorization is
+recorded locally, no supplier email is sent and no external invoice is held.
+
+In **Review & authorize**, use **Generate AI Contextual Review**
+on the relevant pending incident. Gemini `gemini-flash-latest` returns a contextual
+risk assessment, urgency, recommendation, and suggested claim paragraph.
+This alias follows Google's current Flash model; its resolved version can change.
+**Insert AI paragraph into draft** preserves existing edits. Review the final
+letter, then use the existing manager signature and authorization action.
+
+Configure `GEMINI_API_KEY` in **Replit Secrets** and restart the app. At startup,
+the injected credential is merged into Streamlit's native **in-memory** secrets
+store using Streamlit 1.66.1's thread-safe programmatic API. The Gemini client
+reads exclusively through `st.secrets["GEMINI_API_KEY"]`; it has no environment
+fallback. The bridge never writes credentials to files, logs, or session state.
+Replit's injected value takes precedence over any file-based value. No
+`secrets.toml` file is generated; `.streamlit/secrets.toml` is ignored defensively.
+
+Only an explicit Generate click calls Google. The request includes the supplier
+name, item, defect notes, incident loss, and aggregate exposure; it excludes
+supplier email, signatures and other claims' raw notes. There is no separate
+defect-type field in existing records, so notes are supplied with that limitation
+made explicit. AI advice remains session-local and does not write to JSON or
+authorize anything. Inserted text is saved through the existing locked
+authorization workflow. Missing keys, timeouts and invalid responses leave the
+draft untouched. Always verify AI advice; it is not an automatic business decision.
+
+The provider schema deliberately uses only object/string/enum/required constraints
+for Gemini compatibility; strict length and extra-field checks still run locally.
+If Google reports that a model is no longer available, do not retry it repeatedly
+or silently substitute another model. Agree on the replacement first.
+Requests have a 60-second deadline and no automatic retry. The review screen enables
+an automatic fallback **only after a confirmed HTTP 504**. It is explicitly labelled
+**SIMULATED FALLBACK**, not live Gemini. Credentials, permission failures, retired
+models, invalid output, and other HTTP errors do not silently trigger simulation.
+The fallback is deterministic demo assistance, not production policy: potential
+safety keywords are unverified critical flags; loss of RM 500 or three incidents
+with RM 250 pending exposure prompts high urgency; loss of RM 100 or three incidents
+prompts medium urgency; otherwise it suggests a supplier warning. No partial
+amount is invented. Every result still requires manager review and signature.
+Generation leaves the existing draft and database untouched; paragraph insertion
+is explicit and may be edited before the existing authorization workflow.
+The manager menu groups are workflow separation, not authentication or access
+control. The former Node server and `/api` endpoints are no longer used.
+
 ## How We Use Replit (Required)
 
 Our team utilized the Replit platform across multiple core engineering workflows to accelerate development and guarantee a stable, zero-config deployment:
 
 * **Development:** Collaborative coding and live workspace environment configuration inside the Replit cloud IDE, utilizing the Replit AI Agent to structure application routines, scaffolding code structures, and rapidly resolve configuration errors.
 * **Hosting:** The production Streamlit application is actively deployed using Replit Deployments (Autoscale, Asia server geography), transforming our codebase into a publicly accessible web link at the Live Demo URL provided above.
-* **Secrets:** No external API keys or credentials were used in this local MVP version, ensuring zero credit drain risk, absolute security, and localized data isolation for the business workflow.
+* **Secrets:** `GEMINI_API_KEY` is configured using Replit Secrets and bridged into Streamlit's native in-memory secrets store. The Gemini client reads `st.secrets["GEMINI_API_KEY"]`; no credential file is generated and no API key is committed. Explicit live generation requests may consume Google API quota.
 
 📄 **Proof of use:** [submission/SDC2026_TeamAlpha_Replit_POU.pdf](submission/SDC2026_TeamAlpha_Replit_POU.pdf)
 
@@ -112,7 +160,7 @@ Our team utilized the Replit platform across multiple core engineering workflows
 
 ## Future Improvements
 
-* [ ] **Generative AI & Contextual Email Routing:** Transition the current deterministic template engine into a secure, fine-tuned Local Large Language Model (LLM) framework to analyze historical delivery records and dynamically generate highly contextual, urgency-weighted supplier emails.
+* [ ] **Contextual Email Routing:** Extend the existing Gemini-generated, manager-reviewed claim drafts with explicit supplier-email dispatch and delivery tracking. The current application does not send email.
 * [ ] **Role-Based Authentication & Third-Party API Integration:** Upgrade the user workflow separation layer into a cryptographically secured role-based authentication protocol (OAuth2/JWT) and integrate with external accounting software APIs to automatically lock claims to company digital invoices.
 
 ## Team
