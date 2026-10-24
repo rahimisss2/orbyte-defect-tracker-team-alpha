@@ -15,8 +15,8 @@ An automated supply chain management application built with **Python Streamlit**
 * **Github Repository:** https://github.com/rahimisss2/orbyte-defect-tracker-team-alpha
 * **Replit Project:** https://replit.com/@rahimirozaid99/orbyte-defect-tracker-team-alpha
 * **Live Demo URL (Prototype):** https://orbyte-defect-tracker-team-alpha.replit.app
-* **Slide Deck:**
-* **Demo Video:** 
+* **Slide Deck:** https://canva.link/e4eyntm8w0v467u
+* **Demo Video:** https://youtu.be/pyMbSz6FKJc?si=8LcM22PqPk-RyjCq
 
 
 ---
