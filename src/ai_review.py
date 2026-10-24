@@ -7,7 +7,7 @@ from typing import Literal
 
 import streamlit as st
 from google import genai
-from google.genai import types
+from google.genai import errors, types
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
 from database import amount, summarize
@@ -27,6 +27,19 @@ class ContextualReview(BaseModel):
     recommendation: Literal["Full Refund", "Supplier Warning", "Partial Claim"]
     rationale: str = Field(min_length=1, max_length=1500)
     claim_paragraph: str = Field(min_length=1, max_length=2500)
+
+
+# Gemini 2.5 accepts a narrower schema than Pydantic emits (for example, not
+# additionalProperties). Keep length/extra-field validation local, and send
+# only object/string/enum/required constraints to the provider.
+RESPONSE_SCHEMA = types.Schema(
+    type="OBJECT",
+    properties={
+        name: types.Schema(type="STRING", enum=definition.get("enum"))
+        for name, definition in ContextualReview.model_json_schema()["properties"].items()
+    },
+    required=list(ContextualReview.model_fields),
+)
 
 
 def get_api_key():
@@ -103,7 +116,7 @@ def generate_review(context):
                         "decision has already been approved, dispatched, or executed."
                     ),
                     response_mime_type="application/json",
-                    response_schema=ContextualReview,
+                    response_schema=RESPONSE_SCHEMA,
                     temperature=0.2,
                     max_output_tokens=4096,
                 ),
@@ -111,6 +124,16 @@ def generate_review(context):
         return ContextualReview.model_validate_json(response.text or "")
     except (ValidationError, ValueError):
         raise AIReviewError("Gemini returned an incomplete or invalid review. Please try again.") from None
+    except errors.ClientError as error:
+        if error.code == 404 and "no longer available" in (error.message or "").lower():
+            raise AIReviewError(
+                f"{MODEL} is no longer available for generation. A supported replacement "
+                "model must be selected before retrying. Your draft and claim are unchanged."
+            ) from None
+        raise AIReviewError(
+            "Google rejected the review request. Check model availability, API permissions "
+            "and quota. Your draft and claim are unchanged."
+        ) from None
     except Exception:
         # Provider exceptions may include request URLs, keys or incident text.
         # Deliberately do not display or log them.

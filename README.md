@@ -55,6 +55,11 @@ made explicit. AI advice remains session-local and does not write to JSON or
 authorize anything. Inserted text is saved through the existing locked
 authorization workflow. Missing keys, timeouts and invalid responses leave the
 draft untouched. Always verify AI advice; it is not an automatic business decision.
+
+The provider schema deliberately uses only object/string/enum/required constraints
+for Gemini compatibility; strict length and extra-field checks still run locally.
+If Google reports that a model is no longer available, do not retry it repeatedly
+or silently substitute another model. Agree on the replacement first.
 The manager menu groups are workflow separation, not authentication or access
 control. The former Node server and `/api` endpoints are no longer used.
 

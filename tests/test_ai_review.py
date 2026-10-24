@@ -42,7 +42,12 @@ class ReviewServiceTests(unittest.TestCase):
             result = ai_review.generate_review({"incident": {"supplier_name": "Test"}})
             self.assertEqual(result.model_dump(), REVIEW)
             self.assertEqual(generate.call_args.kwargs["model"], "gemini-2.5-flash")
-            self.assertEqual(generate.call_args.kwargs["config"].response_schema, ai_review.ContextualReview)
+            schema = generate.call_args.kwargs["config"].response_schema
+            self.assertEqual(schema, ai_review.RESPONSE_SCHEMA)
+            self.assertEqual(set(schema.required), set(REVIEW))
+            self.assertIsNone(schema.additional_properties)
+            self.assertIsNone(schema.properties["claim_paragraph"].max_length)
+            self.assertEqual(schema.properties["urgency"].enum, ["Low", "Medium", "High", "Critical"])
             self.assertEqual(client.call_args.kwargs["http_options"].timeout, 20_000)
 
     def test_invalid_and_failed_responses_are_sanitized(self):
@@ -66,6 +71,16 @@ class ReviewServiceTests(unittest.TestCase):
         self.assertNotIn(REVIEW["claim_paragraph"], revised)
         with self.assertRaises(ai_review.AIReviewError):
             ai_review.insert_paragraph("x" * 9999, "Too long")
+
+    def test_retired_model_is_reported_without_provider_payload(self):
+        with patch.object(ai_review, "get_api_key", return_value="test-only"), patch.object(ai_review.genai, "Client") as client:
+            generate = client.return_value.__enter__.return_value.models.generate_content
+            generate.side_effect = ai_review.errors.ClientError(
+                404, {"error": {"message": "Model no longer available; sensitive-provider-message"}}
+            )
+            with self.assertRaisesRegex(ai_review.AIReviewError, "no longer available") as raised:
+                ai_review.generate_review({})
+            self.assertNotIn("sensitive-provider-message", str(raised.exception))
 
 
 class ReviewWorkflowTests(unittest.TestCase):
