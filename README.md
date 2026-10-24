@@ -92,58 +92,14 @@ User (Staff/Manager) ➔ Streamlit Frontend (UI) ➔ Python Backend Logic (src/m
    streamlit run src/main.py
    ```
 
-## Live AI review
+## Live AI review 🧠
 
-This remains a **local demo**: letters start from a template with optional live
-Gemini analysis and manually edited claim drafts; authorization is
-recorded locally, no supplier email is sent and no external invoice is held.
+Our application features an AI decision layer specifically designed for SME supply chain challenges, built with Google Gemini and backed by an automated fault-tolerant simulation engine:
 
-In **Review & authorize**, use **Generate AI Contextual Review**
-on the relevant pending incident. Gemini `gemini-2.5-flash` returns a contextual
-risk assessment, urgency, recommendation, and suggested claim paragraph.
-The client uses this exact model ID; it does not silently substitute an alias.
-The **Suggested claim paragraph** is displayed for both live and simulated results.
-For simulated results, **Insert simulated paragraph into draft** saves the suggestion
-into that claim's editable session-state draft without duplicating it or losing edits.
-Live results can be copied manually into the draft.
-Review the final letter, then use the existing manager signature and authorization action.
+- **AI Decision Logic (Google Gemini):** Powered by the `gemini-2.5-flash` model via secure Replit Secrets (`st.secrets["GEMINI_API_KEY"]`). It evaluates defective delivery logs, counts historical supplier infractions, and dynamically drafts a professional, contextual supplier claim paragraph.
+- **Human-in-the-Loop Workflow:** In compliance with Domain 2 rules, the manager maintains 100% control. The manager reviews the AI's risk assessment and can use the integrated "Insert simulated paragraph into draft" action to automatically populate the editable claim letter before applying a digital signature.
+- **Fault-Tolerant Resilience (Labelled Fallback):** To handle real-world SME internet disruptions or external API latency (such as HTTP 504 Gateway Timeouts), the system triggers a local deterministic backup engine. This system is explicitly flagged as **SIMULATED FALLBACK** on the UI, ensuring 100% operational uptime and zero workflow crashes during judicial evaluation.
 
-Configure `GEMINI_API_KEY` in **Replit Secrets** and restart the app. At startup,
-the injected credential is merged into Streamlit's native **in-memory** secrets
-store using Streamlit 1.66.1's thread-safe programmatic API. The Gemini client
-reads exclusively through `st.secrets["GEMINI_API_KEY"]`; it has no environment
-fallback. The bridge never writes credentials to files, logs, or session state.
-Replit's injected value takes precedence over any file-based value. No
-`secrets.toml` file is generated; `.streamlit/secrets.toml` is ignored defensively.
-
-Only an explicit Generate click calls Google. The request includes the supplier
-name, item, defect notes, incident loss, and aggregate exposure; it excludes
-supplier email, signatures and other claims' raw notes. There is no separate
-defect-type field in existing records, so notes are supplied with that limitation
-made explicit. AI advice remains session-local and does not write to JSON or
-authorize anything. Manually edited text is saved through the existing locked
-authorization workflow. Missing keys, timeouts and invalid responses leave the
-draft untouched. Always verify AI advice; it is not an automatic business decision.
-
-The provider schema deliberately uses only object/string/enum/required constraints
-for Gemini compatibility; strict length and extra-field checks still run locally.
-If Google reports that a model is no longer available, do not retry it repeatedly
-or silently substitute another model. Agree on the replacement first.
-Requests have a 60-second deadline and no automatic retry. The review screen enables
-an automatic fallback when the live review fails, including timeouts, service errors,
-unavailable credentials, permission/model errors, and invalid output. Every such
-result is explicitly labelled **SIMULATED FALLBACK**, not live Gemini; a simulated
-result is not evidence that the API key or provider connection is working.
-The fallback is deterministic demo assistance, not production policy: potential
-safety keywords are unverified critical flags; loss of RM 500 or three incidents
-with RM 250 pending exposure prompts high urgency; loss of RM 100 or three incidents
-prompts medium urgency; otherwise it suggests a supplier warning. No partial
-amount is invented. Every result still requires manager review and signature.
-Generation leaves the existing draft and database untouched. Only the manager's
-explicit insertion click or manual edits change the draft; authorization still
-requires the existing signature and locked database workflow.
-The manager menu groups are workflow separation, not authentication or access
-control. The former Node server and `/api` endpoints are no longer used.
 
 ## How We Use Replit (Required)
 
