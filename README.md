@@ -38,11 +38,17 @@ A modular 5-step digital workflow covering a real-time control room, rapid incid
 
 ## 🛠️ Tech Stack
 
-| Frontend | Python (Streamlit Framework) 
-| Backend | Python 3.12 
-| Database | JSON (`synthetic_db.json` with File-Locking engine) 
-| AI / Compute | Google Gemini (`gemini-2.5-flash`) with a labelled simulated fallback
-| Hosting / Dev | Replit Cloud Deployment (.replit.app) 
+## 🛠️ Tech Stack
+
+| Component | Technology / Platform Used | Description |
+| :--- | :--- | :--- |
+| **Frontend UI** | Python (Streamlit Framework) | Rapid interface state design for the Control Room and client logs. |
+| **Backend Core** | Python 3.12 | Core application controller logic, verification, and data handling workflows. |
+| **Data Engine**| JSON Database (`synthetic_db.json`) | Lightweight local storage secured with a custom **atomic File-Locking engine** to guard against concurrent writes. |
+| **AI / Decision**| Google Gemini (`gemini-2.5-flash`) | Automatic real-time severe severity assessment, metric parsing, and contextual claim draft tracking. |
+| **Resilience** | Fault-Tolerant Backup Engine | Local deterministic backup flagged explicitly as a **SIMULATED FALLBACK** during API disruptions or timeouts. |
+| **Hosting & Dev**| Replit Cloud Infrastructure | Production web hosting ecosystem deployed via Asia server autoscaling (`.replit.app`), secured using cloud environment Replit Secrets. |
+
 
 ### Repository Directory Structure:
 
