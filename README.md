@@ -174,8 +174,8 @@ Our team utilized the Replit platform across multiple core engineering workflows
 * [x] Preliminary submission completed (`SDC2026_TeamAlpha_Preliminary.pdf`)
 * [x] Technology declaration completed (`SDC2026_TeamAlpha_TechDeclaration.pdf`)
 * [x] Submission files renamed with your team name (replace TeamName)
-* [ ] "How to Run" steps verified
-* [ ] No API keys or secrets committed to the repository
+* [x] "How to Run" steps verified
+* [x] No API keys or secrets committed to the repository
 
 
 ## 🧪 Automated Testing & SDG Alignment
