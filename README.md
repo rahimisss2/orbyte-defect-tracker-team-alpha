@@ -141,7 +141,7 @@ Our team utilized the Replit platform across multiple core engineering workflows
 * **Hosting:** The production Streamlit application is actively deployed using Replit Deployments (Autoscale, Asia server geography), transforming our codebase into a publicly accessible web link at the Live Demo URL provided above.
 * **Secrets:** `GEMINI_API_KEY` is configured using Replit Secrets and bridged into Streamlit's native in-memory secrets store. The Gemini client reads `st.secrets["GEMINI_API_KEY"]`; no credential file is generated and no API key is committed. Explicit live generation requests may consume Google API quota.
 
-📄 **Proof of use:** 📄 **Proof of use:** [Submission/SDC2026_TeamFAIX_Replit_POU.pdf](Submission/SDC2026_TeamFAIX_Replit_POU.pdf)
+📄 **Proof of use:** [Submission/SDC2026_TeamFAIX_Replit_POU.pdf](Submission/SDC2026_TeamFAIX_Replit_POU.pdf)
 
 
 ## Challenges & Learnings
