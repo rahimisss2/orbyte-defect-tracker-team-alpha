@@ -29,8 +29,32 @@ Back up this file before moving the workspace.
 Unsaved incident inputs and review drafts persist during navigation within the
 same Streamlit session. Streamlit provides the collapsible responsive sidebar.
 
-This remains a **local demo**: letters are template-generated, authorization is
+This remains a **local demo**: letters start from a template with optional live
+Gemini analysis and manager-controlled paragraph insertion; authorization is
 recorded locally, no supplier email is sent and no external invoice is held.
+
+## Live AI review (`feature-live-ai`)
+
+AI work is isolated on `feature-live-ai`; do not merge or publish it to `main`
+until reviewed. In **Review & authorize**, use **Generate AI Contextual Review**
+on the relevant pending incident. Gemini `gemini-2.5-flash` returns a contextual
+risk assessment, urgency, recommendation, and suggested claim paragraph.
+**Insert AI paragraph into draft** preserves existing edits. Review the final
+letter, then use the existing manager signature and authorization action.
+
+Configure `GEMINI_API_KEY` in **Replit Secrets** (available as an environment
+variable), or in Streamlit secrets under the same name. The app checks
+`st.secrets["GEMINI_API_KEY"]` first and falls back to the Replit environment.
+Never commit credentials; `.streamlit/secrets.toml` is ignored.
+
+Only an explicit Generate click calls Google. The request includes the supplier
+name, item, defect notes, incident loss, and aggregate exposure; it excludes
+supplier email, signatures and other claims' raw notes. There is no separate
+defect-type field in existing records, so notes are supplied with that limitation
+made explicit. AI advice remains session-local and does not write to JSON or
+authorize anything. Inserted text is saved through the existing locked
+authorization workflow. Missing keys, timeouts and invalid responses leave the
+draft untouched. Always verify AI advice; it is not an automatic business decision.
 The manager menu groups are workflow separation, not authentication or access
 control. The former Node server and `/api` endpoints are no longer used.
 
