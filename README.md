@@ -46,6 +46,9 @@ A modular 5-step digital workflow covering a real-time control room, rapid incid
 
 ### Repository Directory Structure:
 
+Repository Directory Structure:
+
+```text
 ├── .streamlit/
 │   └── config.toml               # Streamlit UI configuration
 ├── Submission/                   # Required hackathon submission documents
@@ -81,6 +84,8 @@ A modular 5-step digital workflow covering a real-time control room, rapid incid
 ├── pyproject.toml
 ├── requirements.txt              # Production dependency packages
 └── uv.lock
+```
+
 
 ```
 ## Architecture
