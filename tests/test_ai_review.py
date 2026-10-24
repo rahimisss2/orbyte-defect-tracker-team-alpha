@@ -50,7 +50,7 @@ class ReviewServiceTests(unittest.TestCase):
             generate.return_value = SimpleNamespace(text=json.dumps(REVIEW))
             result = ai_review.generate_review({"incident": {"supplier_name": "Test"}})
             self.assertEqual(result.model_dump(), REVIEW)
-            self.assertEqual(generate.call_args.kwargs["model"], "gemini-flash-latest")
+            self.assertEqual(generate.call_args.kwargs["model"], "gemini-2.5-flash")
             schema = generate.call_args.kwargs["config"].response_schema
             self.assertEqual(schema, ai_review.RESPONSE_SCHEMA)
             self.assertEqual(set(schema.required), set(REVIEW))

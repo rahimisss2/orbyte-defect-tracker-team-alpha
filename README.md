@@ -41,7 +41,7 @@ A modular 5-step digital workflow covering a real-time control room, rapid incid
 | Frontend | Python (Streamlit Framework) 
 | Backend | Python 3.12 
 | Database | JSON (`synthetic_db.json` with File-Locking engine) 
-| AI / Compute | Google Gemini (`gemini-flash-latest`) with a labelled 504 simulation fallback
+| AI / Compute | Google Gemini (`gemini-2.5-flash`) with a labelled simulated fallback
 | Hosting / Dev | Replit Cloud Deployment (.replit.app) 
 
 ### Repository Directory Structure:
@@ -99,9 +99,9 @@ Gemini analysis and manually edited claim drafts; authorization is
 recorded locally, no supplier email is sent and no external invoice is held.
 
 In **Review & authorize**, use **Generate AI Contextual Review**
-on the relevant pending incident. Gemini `gemini-flash-latest` returns a contextual
+on the relevant pending incident. Gemini `gemini-2.5-flash` returns a contextual
 risk assessment, urgency, recommendation, and suggested claim paragraph.
-This alias follows Google's current Flash model; its resolved version can change.
+The client uses this exact model ID; it does not silently substitute an alias.
 The **Suggested claim paragraph** is displayed for both live and simulated results.
 For simulated results, **Insert simulated paragraph into draft** saves the suggestion
 into that claim's editable session-state draft without duplicating it or losing edits.

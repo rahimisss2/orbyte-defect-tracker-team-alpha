@@ -11,7 +11,7 @@ from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
 from database import amount, summarize
 
-MODEL = "gemini-flash-latest"
+MODEL = "gemini-2.5-flash"
 
 
 class AIReviewError(Exception):
