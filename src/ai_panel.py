@@ -4,7 +4,7 @@ import streamlit as st
 
 from ai_review import (
     AIGatewayTimeout, AIReviewError, MODEL, context_fingerprint, generate_review,
-    incident_context, insert_paragraph,
+    incident_context,
 )
 from simulated_review import simulate_review
 
@@ -17,23 +17,6 @@ def request_review(context, *, allow_simulated_fallback=False):
         if not allow_simulated_fallback:
             raise
         return simulate_review(context), "simulated"
-
-
-def apply_ai_paragraph(claim_id, original_letter):
-    review = st.session_state.get(f"ai_review_{claim_id}")
-    if not review:
-        return
-    try:
-        st.session_state[f"letter_{claim_id}"] = insert_paragraph(
-            st.session_state.get(f"letter_{claim_id}", original_letter),
-            review["claim_paragraph"],
-            st.session_state.get(f"ai_inserted_{claim_id}", ""),
-        )
-    except AIReviewError as error:
-        st.session_state[f"ai_insert_error_{claim_id}"] = str(error)
-    else:
-        st.session_state[f"ai_inserted_{claim_id}"] = review["claim_paragraph"]
-        st.session_state.pop(f"ai_insert_error_{claim_id}", None)
 
 
 def render_ai_panel(claim, claims, *, allow_simulated_fallback=False):
@@ -73,25 +56,15 @@ def render_ai_panel(claim, claims, *, allow_simulated_fallback=False):
                 st.caption(f"LIVE GEMINI RESPONSE · {MODEL}")
             stale = st.session_state.get(f"ai_context_{claim_id}") != fingerprint
             if stale:
-                st.warning("Incident or exposure metrics have changed. Generate a new review before inserting it.")
+                st.warning("Incident or exposure metrics have changed. Generate a new review before using this advice.")
             st.markdown("**Business risk assessment**")
             st.text(result["risk_assessment"])
             st.markdown(f"**Urgency: {result['urgency']} · {result['recommendation']}**")
             st.text(result["rationale"])
             st.markdown("**Suggested claim paragraph**")
             st.text(result["claim_paragraph"])
-            if st.button(
-                "Insert simulated paragraph into draft" if simulated else "Insert AI paragraph into draft",
-                key=f"insert_ai_{claim_id}",
-                disabled=stale,
-            ):
-                # This panel renders before the draft widget. Save its keyed
-                # state now, then send a fresh render to the browser immediately.
-                apply_ai_paragraph(claim_id, claim.get("letter", ""))
-                st.rerun()
-            if error := st.session_state.get(f"ai_insert_error_{claim_id}"):
-                st.error(error)
+            st.caption("Read the suggestion above or manually copy it into the editable claim letter draft.")
         st.caption(
             "AI advice may be inaccurate. Verify the evidence and edit the draft before signing. "
-            "Generating or inserting advice does not authorize a claim or change its recorded value."
+            "Generating advice does not edit the draft, authorize a claim, or change its recorded value."
         )

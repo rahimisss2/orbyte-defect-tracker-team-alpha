@@ -159,18 +159,3 @@ def generate_review(context):
         ) from None
 
 
-def insert_paragraph(letter, paragraph, previous=""):
-    """Preserve manager edits and prevent repeat insertion of the same paragraph."""
-    if paragraph in letter:
-        return letter
-    if previous and previous in letter:
-        updated = letter.replace(previous, paragraph, 1)
-    else:
-        marker = "\n\nBest regards,"
-        if marker in letter:
-            updated = letter.replace(marker, f"\n\n{paragraph}{marker}", 1)
-        else:
-            updated = f"{letter.rstrip()}\n\n{paragraph}"
-    if len(updated) > 10_000:
-        raise AIReviewError("The draft would exceed 10,000 characters. Shorten it before inserting the paragraph.")
-    return updated

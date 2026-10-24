@@ -95,15 +95,16 @@ User (Staff/Manager) ➔ Streamlit Frontend (UI) ➔ Python Backend Logic (src/m
 ## Live AI review
 
 This remains a **local demo**: letters start from a template with optional live
-Gemini analysis and manager-controlled paragraph insertion; authorization is
+Gemini analysis and manually edited claim drafts; authorization is
 recorded locally, no supplier email is sent and no external invoice is held.
 
 In **Review & authorize**, use **Generate AI Contextual Review**
 on the relevant pending incident. Gemini `gemini-flash-latest` returns a contextual
 risk assessment, urgency, recommendation, and suggested claim paragraph.
 This alias follows Google's current Flash model; its resolved version can change.
-**Insert AI paragraph into draft** preserves existing edits. Review the final
-letter, then use the existing manager signature and authorization action.
+The **Suggested claim paragraph** is displayed as static text for both live and
+simulated results. Read or manually copy it into the editable draft if useful.
+Review the final letter, then use the existing manager signature and authorization action.
 
 Configure `GEMINI_API_KEY` in **Replit Secrets** and restart the app. At startup,
 the injected credential is merged into Streamlit's native **in-memory** secrets
@@ -118,7 +119,7 @@ name, item, defect notes, incident loss, and aggregate exposure; it excludes
 supplier email, signatures and other claims' raw notes. There is no separate
 defect-type field in existing records, so notes are supplied with that limitation
 made explicit. AI advice remains session-local and does not write to JSON or
-authorize anything. Inserted text is saved through the existing locked
+authorize anything. Manually edited text is saved through the existing locked
 authorization workflow. Missing keys, timeouts and invalid responses leave the
 draft untouched. Always verify AI advice; it is not an automatic business decision.
 
@@ -135,8 +136,8 @@ safety keywords are unverified critical flags; loss of RM 500 or three incidents
 with RM 250 pending exposure prompts high urgency; loss of RM 100 or three incidents
 prompts medium urgency; otherwise it suggests a supplier warning. No partial
 amount is invented. Every result still requires manager review and signature.
-Generation leaves the existing draft and database untouched; paragraph insertion
-is explicit and may be edited before the existing authorization workflow.
+Generation leaves the existing draft and database untouched. There is no automatic
+insertion button or draft mutation; managers edit the letter manually before authorization.
 The manager menu groups are workflow separation, not authentication or access
 control. The former Node server and `/api` endpoints are no longer used.
 

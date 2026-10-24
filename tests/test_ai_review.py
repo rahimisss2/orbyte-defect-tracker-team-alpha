@@ -70,17 +70,6 @@ class ReviewServiceTests(unittest.TestCase):
                 ai_review.generate_review({})
             self.assertNotIn("sensitive-provider-message", str(raised.exception))
 
-    def test_paragraph_insertion_preserves_edits_and_is_idempotent(self):
-        letter = "Manager's own edits.\n\nBest regards,\nManager"
-        updated = ai_review.insert_paragraph(letter, REVIEW["claim_paragraph"])
-        self.assertTrue(updated.startswith("Manager's own edits."))
-        self.assertLess(updated.index(REVIEW["claim_paragraph"]), updated.index("Best regards,"))
-        self.assertEqual(ai_review.insert_paragraph(updated, REVIEW["claim_paragraph"]), updated)
-        revised = ai_review.insert_paragraph(updated, "Revised paragraph.", REVIEW["claim_paragraph"])
-        self.assertNotIn(REVIEW["claim_paragraph"], revised)
-        with self.assertRaises(ai_review.AIReviewError):
-            ai_review.insert_paragraph("x" * 9999, "Too long")
-
     def test_retired_model_is_reported_without_provider_payload(self):
         with patch.object(ai_review, "get_api_key", return_value="test-only"), patch.object(ai_review.genai, "Client") as client:
             generate = client.return_value.__enter__.return_value.models.generate_content
@@ -185,7 +174,7 @@ class ReviewWorkflowTests(unittest.TestCase):
         self.assertNotIn("Different private notes", serialized)
         self.assertNotIn("@", serialized)
 
-    def test_generate_insert_edit_sign_and_authorize(self):
+    def test_generate_read_manually_edit_sign_and_authorize(self):
         import ai_panel
         claim_id = self.claim["id"]
         original = self.path.read_bytes()
@@ -198,10 +187,11 @@ class ReviewWorkflowTests(unittest.TestCase):
             self.assertEqual(self.path.read_bytes(), original)
             self.assertEqual(app.text_area(key=f"letter_{claim_id}").value, "Manager edit.\n\nBest regards,\nManager")
             self.assertTrue(any("Context-Aware AI Recommendation" in item.value for item in app.markdown))
-            app.button(key=f"insert_ai_{claim_id}").click().run()
-            self.assertIn(REVIEW["claim_paragraph"], app.text_area(key=f"letter_{claim_id}").value)
-            app.button(key=f"insert_ai_{claim_id}").click().run()
-            self.assertEqual(app.text_area(key=f"letter_{claim_id}").value.count(REVIEW["claim_paragraph"]), 1)
+            self.assertTrue(any(item.value == REVIEW["claim_paragraph"] for item in app.text))
+            self.assertFalse(any(str(button.key).startswith("insert_ai_") for button in app.button))
+            # Simulate the manager manually copying the static suggestion.
+            manual_letter = app.text_area(key=f"letter_{claim_id}").value + "\n\n" + REVIEW["claim_paragraph"]
+            app.text_area(key=f"letter_{claim_id}").input(manual_letter).run()
             self.assertEqual(self.path.read_bytes(), original)
             app.button(key=f"authorize_{claim_id}").click().run()
             self.assertTrue(app.error)  # Signature remains mandatory.
@@ -226,7 +216,7 @@ class ReviewWorkflowTests(unittest.TestCase):
             self.assertEqual(app.text_area(key=f"letter_{self.claim['id']}").value, self.claim["letter"])
             self.assertTrue(app.button(key=f"authorize_{self.claim['id']}"))
 
-    def test_504_fallback_stays_labelled_and_can_be_reviewed_inserted_and_signed(self):
+    def test_504_fallback_is_static_and_unchanged_draft_can_be_signed(self):
         import ai_panel
         claim_id = self.claim["id"]
         original = self.path.read_bytes()
@@ -240,11 +230,12 @@ class ReviewWorkflowTests(unittest.TestCase):
             self.assertFalse(any("LIVE GEMINI RESPONSE" in item.value for item in app.caption))
             self.assertEqual(app.session_state[f"ai_source_{claim_id}"], "simulated")
             self.assertEqual(self.path.read_bytes(), original)
-            app.button(key=f"insert_ai_{claim_id}").click().run()
+            paragraph = app.session_state[f"ai_review_{claim_id}"]["claim_paragraph"]
+            self.assertTrue(any(item.value == paragraph for item in app.text))
+            self.assertFalse(any(str(button.key).startswith("insert_ai_") for button in app.button))
             letter = app.text_area(key=f"letter_{claim_id}").value
-            self.assertIn("Manager edits.", letter)
-            self.assertIn("Gombak Veggie WholeSale", letter)
-            self.assertIn("RM 25.50", letter)
+            self.assertEqual(letter, "Manager edits.\n\nBest regards,\nManager")
+            self.assertNotIn(paragraph, letter)
             self.assertTrue(any("SIMULATED FALLBACK" in item.value for item in app.warning))
             self.assertEqual(self.path.read_bytes(), original)
             app.button(key=f"authorize_{claim_id}").click().run()
@@ -258,7 +249,7 @@ class ReviewWorkflowTests(unittest.TestCase):
             self.assertEqual(approved["loss"], self.claim["loss"])
             generate.assert_called_once()
 
-    def test_simulated_insertion_is_immediate_persistent_and_claim_scoped(self):
+    def test_static_simulated_suggestion_preserves_drafts_across_reruns(self):
         import ai_panel
         claim_id = self.claim["id"]
         other = database.create_claim("Gombak Veggie WholeSale", 1, "Separate incident.")
@@ -270,25 +261,24 @@ class ReviewWorkflowTests(unittest.TestCase):
             app.button(key=f"generate_ai_{claim_id}").click().run()
             paragraph = app.session_state[f"ai_review_{claim_id}"]["claim_paragraph"]
 
-            app.button(key=f"insert_ai_{claim_id}").click().run()
-            inserted = app.text_area(key=letter_key).value
+            draft = app.text_area(key=letter_key).value
             self.assertFalse(app.exception)
-            self.assertIn(paragraph, inserted)
-            self.assertIn("Keep my edits.", inserted)
-            self.assertEqual(app.session_state[letter_key], inserted)
+            self.assertTrue(any(item.value == paragraph for item in app.text))
+            self.assertNotIn(paragraph, draft)
+            self.assertEqual(draft, "Keep my edits.\n\nBest regards,\nManager")
+            self.assertEqual(app.session_state[letter_key], draft)
             self.assertEqual(app.text_area(key=f"letter_{other['id']}").value, other["letter"])
 
             app.run()
-            self.assertEqual(app.text_area(key=letter_key).value, inserted)
+            self.assertEqual(app.text_area(key=letter_key).value, draft)
+            self.assertTrue(any(item.value == paragraph for item in app.text))
+            self.assertFalse(any(str(button.key).startswith("insert_ai_") for button in app.button))
             app.text_input(key=f"signature_{claim_id}").input("Test Manager").run()
-            self.assertEqual(app.text_area(key=letter_key).value, inserted)
-            app.button(key=f"insert_ai_{claim_id}").click().run()
-            self.assertEqual(app.text_area(key=letter_key).value, inserted)
-            self.assertEqual(inserted.count(paragraph), 1)
+            self.assertEqual(app.text_area(key=letter_key).value, draft)
 
-            app.text_area(key=letter_key).input(inserted + "\nManager follow-up.").run()
+            app.text_area(key=letter_key).input(draft + "\nManager follow-up.").run()
             app.run()
-            self.assertEqual(app.text_area(key=letter_key).value, inserted + "\nManager follow-up.")
+            self.assertEqual(app.text_area(key=letter_key).value, draft + "\nManager follow-up.")
             self.assertEqual(self.path.read_bytes(), original)
             generate.assert_called_once()
 

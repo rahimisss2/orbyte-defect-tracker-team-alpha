@@ -172,7 +172,7 @@ def review_authorize(*, allow_simulated_fallback=False):
                 st.text_area(
                     "Claim letter draft", value=None,
                     height=310, max_chars=10_000, key=letter_key, persist_state="session",
-                    help="Editable template draft. Generate an optional live Gemini review and insert its paragraph below before signing.",
+                    help="Editable template draft. Read the optional AI suggestion below and manually copy any useful text here before signing.",
                 )
             st.text_input(
                 "eSign · Manager full name", max_chars=160, key=f"signature_{claim['id']}",
