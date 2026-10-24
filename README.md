@@ -36,7 +36,6 @@ A modular 5-step digital workflow covering a real-time control room, rapid incid
 
 ---
 
-## 🛠️ Tech Stack
 
 ## 🛠️ Tech Stack
 
