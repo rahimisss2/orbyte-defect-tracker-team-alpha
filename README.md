@@ -61,8 +61,17 @@ The provider schema deliberately uses only object/string/enum/required constrain
 for Gemini compatibility; strict length and extra-field checks still run locally.
 If Google reports that a model is no longer available, do not retry it repeatedly
 or silently substitute another model. Agree on the replacement first.
-Requests have a 60-second deadline and no automatic retry; a gateway timeout is
-shown explicitly, with the existing draft and database left untouched.
+Requests have a 60-second deadline and no automatic retry. The review screen enables
+an automatic fallback **only after a confirmed HTTP 504**. It is explicitly labelled
+**SIMULATED FALLBACK**, not live Gemini. Credentials, permission failures, retired
+models, invalid output, and other HTTP errors do not silently trigger simulation.
+The fallback is deterministic demo assistance, not production policy: potential
+safety keywords are unverified critical flags; loss of RM 500 or three incidents
+with RM 250 pending exposure prompts high urgency; loss of RM 100 or three incidents
+prompts medium urgency; otherwise it suggests a supplier warning. No partial
+amount is invented. Every result still requires manager review and signature.
+Generation leaves the existing draft and database untouched; paragraph insertion
+is explicit and may be edited before the existing authorization workflow.
 The manager menu groups are workflow separation, not authentication or access
 control. The former Node server and `/api` endpoints are no longer used.
 

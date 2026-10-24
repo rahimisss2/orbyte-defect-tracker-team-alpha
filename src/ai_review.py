@@ -19,6 +19,10 @@ class AIReviewError(Exception):
     """Safe message for display; never contains credentials or provider payloads."""
 
 
+class AIGatewayTimeout(AIReviewError):
+    """Only a confirmed HTTP 504 may activate the simulated demo fallback."""
+
+
 class ContextualReview(BaseModel):
     model_config = ConfigDict(extra="forbid", str_strip_whitespace=True)
 
@@ -136,7 +140,7 @@ def generate_review(context):
         ) from None
     except errors.ServerError as error:
         if error.code == 504:
-            raise AIReviewError(
+            raise AIGatewayTimeout(
                 "The Gemini request timed out (HTTP 504). Try again later. "
                 "Your draft and claim are unchanged."
             ) from None

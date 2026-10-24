@@ -27,8 +27,11 @@ REVIEW = {
 
 class ReviewServiceTests(unittest.TestCase):
     def test_secure_credentials_and_missing_key(self):
-        with patch.object(ai_review.st, "secrets", {"GEMINI_API_KEY": "test-only"}):
+        with patch.object(ai_review.st, "secrets", {"GEMINI_API_KEY": "test-only"}), patch.dict(os.environ, {"GEMINI_API_KEY": "environment-test-only"}):
             self.assertEqual(ai_review.get_api_key(), "test-only")
+        with patch.object(ai_review.st, "secrets") as secrets, patch.dict(os.environ, {"GEMINI_API_KEY": "env-test-only"}):
+            secrets.__getitem__.side_effect = FileNotFoundError("No Streamlit secrets file")
+            self.assertEqual(ai_review.get_api_key(), "env-test-only")
         with patch.object(ai_review.st, "secrets", {}), patch.dict(os.environ, {"GEMINI_API_KEY": "env-test-only"}):
             self.assertEqual(ai_review.get_api_key(), "env-test-only")
         with patch.object(ai_review.st, "secrets", {}), patch.dict(os.environ, {}, clear=True):
@@ -90,8 +93,61 @@ class ReviewServiceTests(unittest.TestCase):
             )
             with self.assertRaisesRegex(ai_review.AIReviewError, "HTTP 504") as raised:
                 ai_review.generate_review({})
+            self.assertIsInstance(raised.exception, ai_review.AIGatewayTimeout)
             self.assertNotIn("sensitive-provider-message", str(raised.exception))
             generate.assert_called_once()
+
+
+class SimulationTests(unittest.TestCase):
+    def context(self, loss="25.50", count=1, pending="25.50", notes="Damaged on delivery"):
+        return {
+            "incident": {
+                "supplier_name": "Test supplier", "item": "Vegetables", "affected_quantity": 3,
+                "financial_loss": loss, "incident_notes": notes,
+            },
+            "supplier_metrics": {
+                "recorded_incidents": count, "total_recorded_loss": "750.50",
+                "pending_exposure": pending,
+            },
+        }
+
+    def test_demo_rules_are_contextual_and_do_not_invent_partial_amounts(self):
+        from simulated_review import simulate_review
+        cases = [
+            ({}, "Low", "Supplier Warning"),
+            ({"loss": "100"}, "Medium", "Partial Claim"),
+            ({"loss": "500"}, "High", "Full Refund"),
+            ({"count": 3, "pending": "250"}, "High", "Full Refund"),
+            ({"count": 3}, "Medium", "Partial Claim"),
+            ({"notes": "Expired stock reported"}, "Critical", "Full Refund"),
+        ]
+        for kwargs, urgency, recommendation in cases:
+            with self.subTest(kwargs=kwargs):
+                context = self.context(**kwargs)
+                original = json.dumps(context, sort_keys=True)
+                review = simulate_review(context)
+                self.assertEqual((review.urgency, review.recommendation), (urgency, recommendation))
+                self.assertIn("simulated recommendation", review.rationale)
+                self.assertIn("Test supplier", review.claim_paragraph)
+                self.assertEqual(json.dumps(context, sort_keys=True), original)
+                if recommendation == "Partial Claim":
+                    self.assertIn("no partial amount has been calculated", review.claim_paragraph)
+
+    def test_only_confirmed_504_and_enabled_page_use_fallback(self):
+        import ai_panel
+        context = self.context()
+        with patch.object(ai_panel, "generate_review", side_effect=ai_review.AIGatewayTimeout("HTTP 504")) as generate:
+            result, source = ai_panel.request_review(context, allow_simulated_fallback=True)
+            self.assertEqual(source, "simulated")
+            self.assertIsInstance(result, ai_review.ContextualReview)
+            generate.assert_called_once()
+            with self.assertRaises(ai_review.AIGatewayTimeout):
+                ai_panel.request_review(context, allow_simulated_fallback=False)
+        for message in ("Gemini is not configured.", "Invalid response", "Permission denied"):
+            with patch.object(ai_panel, "generate_review", side_effect=ai_review.AIReviewError(message)), patch.object(ai_panel, "simulate_review") as simulate:
+                with self.assertRaises(ai_review.AIReviewError):
+                    ai_panel.request_review(context, allow_simulated_fallback=True)
+                simulate.assert_not_called()
 
 
 class ReviewWorkflowTests(unittest.TestCase):
@@ -163,6 +219,52 @@ class ReviewWorkflowTests(unittest.TestCase):
             self.assertEqual(self.path.read_bytes(), original)
             self.assertEqual(app.text_area(key=f"letter_{self.claim['id']}").value, self.claim["letter"])
             self.assertTrue(app.button(key=f"authorize_{self.claim['id']}"))
+
+    def test_504_fallback_stays_labelled_and_can_be_reviewed_inserted_and_signed(self):
+        import ai_panel
+        claim_id = self.claim["id"]
+        original = self.path.read_bytes()
+        with patch.object(ai_panel, "generate_review", side_effect=ai_review.AIGatewayTimeout("HTTP 504")) as generate:
+            app = self.app()
+            app.text_area(key=f"letter_{claim_id}").input("Manager edits.\n\nBest regards,\nManager").run()
+            app.button(key=f"generate_ai_{claim_id}").click().run()
+            self.assertFalse(app.exception)
+            self.assertFalse(app.error)
+            self.assertTrue(any("SIMULATED FALLBACK" in item.value for item in app.warning))
+            self.assertFalse(any("LIVE GEMINI RESPONSE" in item.value for item in app.caption))
+            self.assertEqual(app.session_state[f"ai_source_{claim_id}"], "simulated")
+            self.assertEqual(self.path.read_bytes(), original)
+            app.button(key=f"insert_ai_{claim_id}").click().run()
+            letter = app.text_area(key=f"letter_{claim_id}").value
+            self.assertIn("Manager edits.", letter)
+            self.assertIn("Gombak Veggie WholeSale", letter)
+            self.assertIn("RM 25.50", letter)
+            self.assertTrue(any("SIMULATED FALLBACK" in item.value for item in app.warning))
+            self.assertEqual(self.path.read_bytes(), original)
+            app.button(key=f"authorize_{claim_id}").click().run()
+            self.assertTrue(app.error)  # A simulated recommendation cannot bypass eSign.
+            app.text_input(key=f"signature_{claim_id}").input("Test Manager").run()
+            app.button(key=f"authorize_{claim_id}").click().run()
+            self.assertFalse(app.exception)
+            approved = database.read_database()["claims"][0]
+            self.assertEqual(approved["status"], "authorized_demo")
+            self.assertEqual(approved["finalLetter"], letter)
+            self.assertEqual(approved["loss"], self.claim["loss"])
+            generate.assert_called_once()
+
+    def test_live_success_replaces_simulation_provenance(self):
+        import ai_panel
+        claim_id = self.claim["id"]
+        with patch.object(ai_panel, "generate_review", side_effect=[
+            ai_review.AIGatewayTimeout("HTTP 504"), ai_review.ContextualReview(**REVIEW),
+        ]):
+            app = self.app()
+            app.button(key=f"generate_ai_{claim_id}").click().run()
+            self.assertEqual(app.session_state[f"ai_source_{claim_id}"], "simulated")
+            app.button(key=f"generate_ai_{claim_id}").click().run()
+            self.assertEqual(app.session_state[f"ai_source_{claim_id}"], "live")
+            self.assertFalse(any("SIMULATED FALLBACK" in item.value for item in app.warning))
+            self.assertTrue(any("LIVE GEMINI RESPONSE" in item.value for item in app.caption))
 
 
 if __name__ == "__main__":

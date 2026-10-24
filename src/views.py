@@ -132,7 +132,7 @@ def record_authorization(claim_id):
         st.session_state["flash"] = ("success", "Manager authorization recorded locally for demo purposes only.")
 
 
-def review_authorize():
+def review_authorize(*, allow_simulated_fallback=False):
     from ai_panel import render_ai_panel
 
     st.caption("Manager workspace — inspect the incident, edit the claim draft, then sign and authorize.")
@@ -161,7 +161,10 @@ def review_authorize():
                 st.text(f"{claim['quantity']} units · {rm(claim['loss'])}")
                 st.caption("FLOOR WORKER NOTES")
                 st.text(claim["notes"] or "No additional notes.")
-            render_ai_panel(claim, st.session_state["database"]["claims"])
+            render_ai_panel(
+                claim, st.session_state["database"]["claims"],
+                allow_simulated_fallback=allow_simulated_fallback,
+            )
             with draft:
                 letter_key = f"letter_{claim['id']}"
                 if letter_key not in st.session_state:
