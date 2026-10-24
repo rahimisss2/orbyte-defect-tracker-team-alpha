@@ -53,7 +53,7 @@ def simulate_review(context):
     }[recommendation]
     return ContextualReview(
         risk_assessment=(
-            f"The incident records {incident['affected_quantity']} affected units and RM {loss:.2f} "
+            f"For supplier {supplier_name}, the incident records {incident['affected_quantity']} affected units and RM {loss:.2f} "
             f"in loss. This supplier has {count} recorded incidents totalling RM {total:.2f}, "
             f"with RM {pending:.2f} pending exposure. These are logged losses, not recovered funds. "
             "Delivery volume and supporting evidence are not available here, so a defect rate "

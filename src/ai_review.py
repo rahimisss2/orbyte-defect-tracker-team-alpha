@@ -19,7 +19,7 @@ class AIReviewError(Exception):
 
 
 class AIGatewayTimeout(AIReviewError):
-    """Only a confirmed HTTP 504 may activate the simulated demo fallback."""
+    """A confirmed HTTP 504 from Gemini."""
 
 
 class ContextualReview(BaseModel):
@@ -157,5 +157,22 @@ def generate_review(context):
             "Gemini could not complete the review. Check the API key, model access, "
             "quota and connection, then try again. Your draft and claim are unchanged."
         ) from None
+
+
+def insert_paragraph(letter, paragraph, previous=""):
+    """Preserve manager edits; replace prior simulation text without duplicates."""
+    if paragraph in letter:
+        return letter
+    if previous and previous in letter:
+        updated = letter.replace(previous, paragraph, 1)
+    else:
+        marker = "\n\nBest regards,"
+        if marker in letter:
+            updated = letter.replace(marker, f"\n\n{paragraph}{marker}", 1)
+        else:
+            updated = f"{letter.rstrip()}\n\n{paragraph}"
+    if len(updated) > 10_000:
+        raise AIReviewError("The draft would exceed 10,000 characters. Shorten it before inserting the paragraph.")
+    return updated
 
 

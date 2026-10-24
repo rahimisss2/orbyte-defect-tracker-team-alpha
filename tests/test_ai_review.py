@@ -128,7 +128,7 @@ class SimulationTests(unittest.TestCase):
                 if recommendation == "Partial Claim":
                     self.assertIn("no partial amount has been calculated", review.claim_paragraph)
 
-    def test_only_confirmed_504_and_enabled_page_use_fallback(self):
+    def test_enabled_page_falls_back_on_all_handled_live_review_failures(self):
         import ai_panel
         context = self.context()
         with patch.object(ai_panel, "generate_review", side_effect=ai_review.AIGatewayTimeout("HTTP 504")) as generate:
@@ -138,11 +138,16 @@ class SimulationTests(unittest.TestCase):
             generate.assert_called_once()
             with self.assertRaises(ai_review.AIGatewayTimeout):
                 ai_panel.request_review(context, allow_simulated_fallback=False)
-        for message in ("Gemini is not configured.", "Invalid response", "Permission denied"):
-            with patch.object(ai_panel, "generate_review", side_effect=ai_review.AIReviewError(message)), patch.object(ai_panel, "simulate_review") as simulate:
+        for message in (
+            "Gemini is not configured.", "Invalid response", "Permission denied",
+            "The Gemini service could not complete the request", "Connection timed out",
+        ):
+            with patch.object(ai_panel, "generate_review", side_effect=ai_review.AIReviewError(message)):
+                result, source = ai_panel.request_review(context, allow_simulated_fallback=True)
+                self.assertEqual(source, "simulated")
+                self.assertIsInstance(result, ai_review.ContextualReview)
                 with self.assertRaises(ai_review.AIReviewError):
-                    ai_panel.request_review(context, allow_simulated_fallback=True)
-                simulate.assert_not_called()
+                    ai_panel.request_review(context, allow_simulated_fallback=False)
 
 
 class ReviewWorkflowTests(unittest.TestCase):
@@ -210,13 +215,14 @@ class ReviewWorkflowTests(unittest.TestCase):
         with patch.object(ai_panel, "generate_review", side_effect=ai_review.AIReviewError("Gemini is not configured.")):
             app = self.app()
             app.button(key=f"generate_ai_{self.claim['id']}").click().run()
-            self.assertTrue(app.error)
+            self.assertFalse(app.error)
             self.assertFalse(app.exception)
+            self.assertTrue(any("SIMULATED FALLBACK" in item.value for item in app.warning))
             self.assertEqual(self.path.read_bytes(), original)
             self.assertEqual(app.text_area(key=f"letter_{self.claim['id']}").value, self.claim["letter"])
             self.assertTrue(app.button(key=f"authorize_{self.claim['id']}"))
 
-    def test_504_fallback_is_static_and_unchanged_draft_can_be_signed(self):
+    def test_504_fallback_can_be_inserted_edited_and_signed(self):
         import ai_panel
         claim_id = self.claim["id"]
         original = self.path.read_bytes()
@@ -232,10 +238,15 @@ class ReviewWorkflowTests(unittest.TestCase):
             self.assertEqual(self.path.read_bytes(), original)
             paragraph = app.session_state[f"ai_review_{claim_id}"]["claim_paragraph"]
             self.assertTrue(any(item.value == paragraph for item in app.text))
-            self.assertFalse(any(str(button.key).startswith("insert_ai_") for button in app.button))
+            self.assertEqual(app.text_area(key=f"letter_{claim_id}").value, "Manager edits.\n\nBest regards,\nManager")
+            app.button(key=f"insert_ai_{claim_id}").click().run()
             letter = app.text_area(key=f"letter_{claim_id}").value
-            self.assertEqual(letter, "Manager edits.\n\nBest regards,\nManager")
-            self.assertNotIn(paragraph, letter)
+            self.assertIn(paragraph, letter)
+            self.assertIn("Manager edits.", letter)
+            self.assertIn("Gombak Veggie WholeSale", paragraph)
+            self.assertIn("RM 25.50", paragraph)
+            self.assertIn("3 affected units", paragraph)
+            self.assertEqual(app.session_state[f"letter_{claim_id}"], letter)
             self.assertTrue(any("SIMULATED FALLBACK" in item.value for item in app.warning))
             self.assertEqual(self.path.read_bytes(), original)
             app.button(key=f"authorize_{claim_id}").click().run()
@@ -249,7 +260,7 @@ class ReviewWorkflowTests(unittest.TestCase):
             self.assertEqual(approved["loss"], self.claim["loss"])
             generate.assert_called_once()
 
-    def test_static_simulated_suggestion_preserves_drafts_across_reruns(self):
+    def test_simulated_insertion_preserves_drafts_across_reruns(self):
         import ai_panel
         claim_id = self.claim["id"]
         other = database.create_claim("Gombak Veggie WholeSale", 1, "Separate incident.")
@@ -269,10 +280,16 @@ class ReviewWorkflowTests(unittest.TestCase):
             self.assertEqual(app.session_state[letter_key], draft)
             self.assertEqual(app.text_area(key=f"letter_{other['id']}").value, other["letter"])
 
+            app.button(key=f"insert_ai_{claim_id}").click().run()
+            draft = app.text_area(key=letter_key).value
+            self.assertIn(paragraph, draft)
+            self.assertIn("Keep my edits.", draft)
             app.run()
             self.assertEqual(app.text_area(key=letter_key).value, draft)
             self.assertTrue(any(item.value == paragraph for item in app.text))
-            self.assertFalse(any(str(button.key).startswith("insert_ai_") for button in app.button))
+            app.button(key=f"insert_ai_{claim_id}").click().run()
+            self.assertEqual(app.text_area(key=letter_key).value, draft)
+            self.assertEqual(draft.count(paragraph), 1)
             app.text_input(key=f"signature_{claim_id}").input("Test Manager").run()
             self.assertEqual(app.text_area(key=letter_key).value, draft)
 
@@ -281,6 +298,48 @@ class ReviewWorkflowTests(unittest.TestCase):
             self.assertEqual(app.text_area(key=letter_key).value, draft + "\nManager follow-up.")
             self.assertEqual(self.path.read_bytes(), original)
             generate.assert_called_once()
+
+    def test_service_errors_show_contextual_simulation_without_red_error(self):
+        import ai_panel
+        claim_id = self.claim["id"]
+        original = self.path.read_bytes()
+        for message in (
+            "The Gemini service could not complete the request",
+            "Connection timed out", "Google rejected the review request",
+            "Gemini returned an incomplete or invalid review",
+        ):
+            with self.subTest(message=message), patch.object(
+                ai_panel, "generate_review", side_effect=ai_review.AIReviewError(message),
+            ):
+                app = self.app()
+                app.button(key=f"generate_ai_{claim_id}").click().run()
+                self.assertFalse(app.exception)
+                self.assertFalse(app.error)
+                self.assertTrue(any("SIMULATED FALLBACK" in item.value for item in app.warning))
+                self.assertFalse(any("HTTP 504" in item.value for item in app.warning))
+                self.assertTrue(any("Urgency status:" in item.value for item in app.markdown))
+                result = app.session_state[f"ai_review_{claim_id}"]
+                for expected in ("Gombak Veggie WholeSale", "RM 25.50", "3 affected units"):
+                    self.assertIn(expected, result["risk_assessment"])
+                    self.assertIn(expected, result["claim_paragraph"])
+                self.assertTrue(any(item.value == result["claim_paragraph"] for item in app.text))
+                self.assertEqual(app.button(key=f"insert_ai_{claim_id}").label, "Insert simulated paragraph into draft")
+                self.assertFalse(app.button(key=f"insert_ai_{claim_id}").disabled)
+                app.button(key=f"insert_ai_{claim_id}").click().run()
+                self.assertIn(result["claim_paragraph"], app.text_area(key=f"letter_{claim_id}").value)
+                self.assertEqual(self.path.read_bytes(), original)
+
+    def test_insertion_replaces_previous_paragraph_and_rejects_oversized_draft(self):
+        paragraph = REVIEW["claim_paragraph"]
+        letter = "Manager edits.\n\nBest regards,\nManager"
+        updated = ai_review.insert_paragraph(letter, paragraph)
+        self.assertIn("Manager edits.", updated)
+        self.assertEqual(ai_review.insert_paragraph(updated, paragraph), updated)
+        revised = ai_review.insert_paragraph(updated, "New suggestion.", paragraph)
+        self.assertNotIn(paragraph, revised)
+        self.assertIn("New suggestion.", revised)
+        with self.assertRaises(ai_review.AIReviewError):
+            ai_review.insert_paragraph("x" * 9999, paragraph)
 
     def test_live_success_replaces_simulation_provenance(self):
         import ai_panel

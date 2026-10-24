@@ -102,8 +102,10 @@ In **Review & authorize**, use **Generate AI Contextual Review**
 on the relevant pending incident. Gemini `gemini-flash-latest` returns a contextual
 risk assessment, urgency, recommendation, and suggested claim paragraph.
 This alias follows Google's current Flash model; its resolved version can change.
-The **Suggested claim paragraph** is displayed as static text for both live and
-simulated results. Read or manually copy it into the editable draft if useful.
+The **Suggested claim paragraph** is displayed for both live and simulated results.
+For simulated results, **Insert simulated paragraph into draft** saves the suggestion
+into that claim's editable session-state draft without duplicating it or losing edits.
+Live results can be copied manually into the draft.
 Review the final letter, then use the existing manager signature and authorization action.
 
 Configure `GEMINI_API_KEY` in **Replit Secrets** and restart the app. At startup,
@@ -128,16 +130,18 @@ for Gemini compatibility; strict length and extra-field checks still run locally
 If Google reports that a model is no longer available, do not retry it repeatedly
 or silently substitute another model. Agree on the replacement first.
 Requests have a 60-second deadline and no automatic retry. The review screen enables
-an automatic fallback **only after a confirmed HTTP 504**. It is explicitly labelled
-**SIMULATED FALLBACK**, not live Gemini. Credentials, permission failures, retired
-models, invalid output, and other HTTP errors do not silently trigger simulation.
+an automatic fallback when the live review fails, including timeouts, service errors,
+unavailable credentials, permission/model errors, and invalid output. Every such
+result is explicitly labelled **SIMULATED FALLBACK**, not live Gemini; a simulated
+result is not evidence that the API key or provider connection is working.
 The fallback is deterministic demo assistance, not production policy: potential
 safety keywords are unverified critical flags; loss of RM 500 or three incidents
 with RM 250 pending exposure prompts high urgency; loss of RM 100 or three incidents
 prompts medium urgency; otherwise it suggests a supplier warning. No partial
 amount is invented. Every result still requires manager review and signature.
-Generation leaves the existing draft and database untouched. There is no automatic
-insertion button or draft mutation; managers edit the letter manually before authorization.
+Generation leaves the existing draft and database untouched. Only the manager's
+explicit insertion click or manual edits change the draft; authorization still
+requires the existing signature and locked database workflow.
 The manager menu groups are workflow separation, not authentication or access
 control. The former Node server and `/api` endpoints are no longer used.
 
