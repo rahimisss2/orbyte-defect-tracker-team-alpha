@@ -31,9 +31,15 @@ class ReviewServiceTests(unittest.TestCase):
             self.assertEqual(ai_review.get_api_key(), "test-only")
         with patch.object(ai_review.st, "secrets") as secrets, patch.dict(os.environ, {"GEMINI_API_KEY": "env-test-only"}):
             secrets.__getitem__.side_effect = FileNotFoundError("No Streamlit secrets file")
-            self.assertEqual(ai_review.get_api_key(), "env-test-only")
+            with self.assertRaisesRegex(ai_review.AIReviewError, "not configured"):
+                ai_review.get_api_key()
         with patch.object(ai_review.st, "secrets", {}), patch.dict(os.environ, {"GEMINI_API_KEY": "env-test-only"}):
-            self.assertEqual(ai_review.get_api_key(), "env-test-only")
+            with self.assertRaisesRegex(ai_review.AIReviewError, "not configured"):
+                ai_review.get_api_key()
+        for invalid in ("", "   ", None, 123):
+            with self.subTest(invalid=invalid), patch.object(ai_review.st, "secrets", {"GEMINI_API_KEY": invalid}):
+                with self.assertRaises(ai_review.AIReviewError):
+                    ai_review.get_api_key()
         with patch.object(ai_review.st, "secrets", {}), patch.dict(os.environ, {}, clear=True):
             with self.assertRaisesRegex(ai_review.AIReviewError, "not configured"):
                 ai_review.generate_review({})

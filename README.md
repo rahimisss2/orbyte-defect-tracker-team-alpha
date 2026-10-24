@@ -43,10 +43,13 @@ This alias follows Google's current Flash model; its resolved version can change
 **Insert AI paragraph into draft** preserves existing edits. Review the final
 letter, then use the existing manager signature and authorization action.
 
-Configure `GEMINI_API_KEY` in **Replit Secrets** (available as an environment
-variable), or in Streamlit secrets under the same name. The app checks
-`st.secrets["GEMINI_API_KEY"]` first and falls back to the Replit environment.
-Never commit credentials; `.streamlit/secrets.toml` is ignored.
+Configure `GEMINI_API_KEY` in **Replit Secrets** and restart the app. At startup,
+the injected credential is merged into Streamlit's native **in-memory** secrets
+store using Streamlit 1.66.1's thread-safe programmatic API. The Gemini client
+reads exclusively through `st.secrets["GEMINI_API_KEY"]`; it has no environment
+fallback. The bridge never writes credentials to files, logs, or session state.
+Replit's injected value takes precedence over any file-based value. No
+`secrets.toml` file is generated; `.streamlit/secrets.toml` is ignored defensively.
 
 Only an explicit Generate click calls Google. The request includes the supplier
 name, item, defect notes, incident loss, and aggregate exposure; it excludes

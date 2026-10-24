@@ -2,7 +2,6 @@
 
 import hashlib
 import json
-import os
 from typing import Literal
 
 import streamlit as st
@@ -47,15 +46,18 @@ RESPONSE_SCHEMA = types.Schema(
 
 
 def get_api_key():
-    """Streamlit secrets first; Replit Secrets are supplied as environment vars."""
+    """Clients read exclusively from Streamlit's configured secrets store."""
     try:
         key = st.secrets["GEMINI_API_KEY"]
     except (KeyError, FileNotFoundError):
-        key = os.environ.get("GEMINI_API_KEY")
+        raise AIReviewError(
+            "Gemini is not configured. Add GEMINI_API_KEY using Replit Secrets "
+            "and restart the app. Never paste the key into a claim."
+        ) from None
     if not isinstance(key, str) or not key.strip():
         raise AIReviewError(
-            "Gemini is not configured. Add GEMINI_API_KEY using Replit Secrets, "
-            "or configure it in Streamlit secrets. Never paste the key into a claim."
+            "Gemini is not configured. Add a non-empty GEMINI_API_KEY using Replit Secrets "
+            "and restart the app. Never paste the key into a claim."
         )
     return key.strip()
 
