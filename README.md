@@ -45,21 +45,43 @@ A modular 5-step digital workflow covering a real-time control room, rapid incid
 | Hosting / Dev | Replit Cloud Deployment (.replit.app) 
 
 ### Repository Directory Structure:
-```text
-├── .streamlit/config.toml
-├── src/
-│   ├──main.py
-│   ├── database.py
-│   └── screens/
-│       ├── log_incident.py
-│       ├── review_authorize.py
-│       └── audit_history.py
-├── tests/
-├── LICENSE
-├── README.md
+
+├── .streamlit/
+│   └── config.toml               # Streamlit UI configuration
+├── Submission/                   # Required hackathon submission documents
+│   ├── SDC2026_FAIX_Preliminary.pdf
+│   ├── SDC2026_FAIX_TechDeclaration.pdf
+│   └── SDC2026_TeamFAIX_Replit_POU.pdf
+├── src/                          # Application source code
+│   ├── assets/                   # Static UI assets and images
+│   └── screens/                  # Modular view interfaces
+│       ├── ai_panel.py
+│       ├── ai_review.py
+│       ├── audit_ui.py
+│       ├── database.py           # Local storage Engine (JSON File-Locking)
+│       ├── main.py               # Main application entry point
+│       ├── navigation.py
+│       ├── page_transition.py
+│       ├── runtime_secrets.py    # Bridge for st.secrets keys
+│       ├── simulated_review.py   # Fault-tolerant backup engine
+│       ├── theme.py
+│       ├── views.py
+│       └── welcome.py
+├── tests/                        # Automated test suite
+│   ├── test_ai_review.py
+│   ├── test_audit_ui.py
+│   ├── test_orbyte.py
+│   ├── test_page_transition.py
+│   └── test_runtime_secrets.py
+├── .gitattributes
+├── .gitignore
+├── .replit                       # Replit cloud execution runtime triggers
+├── LICENSE                       # Apache License 2.0 file
+├── README.md                     # Documentation frontpage
 ├── pyproject.toml
-├── requirements.txt
+├── requirements.txt              # Production dependency packages
 └── uv.lock
+
 ```
 ## Architecture
 
