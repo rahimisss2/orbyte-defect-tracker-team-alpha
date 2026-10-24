@@ -80,12 +80,15 @@ def render_ai_panel(claim, claims, *, allow_simulated_fallback=False):
             st.text(result["rationale"])
             st.markdown("**Suggested claim paragraph**")
             st.text(result["claim_paragraph"])
-            st.button(
+            if st.button(
                 "Insert simulated paragraph into draft" if simulated else "Insert AI paragraph into draft",
                 key=f"insert_ai_{claim_id}",
-                disabled=stale, on_click=apply_ai_paragraph,
-                args=(claim_id, claim.get("letter", "")),
-            )
+                disabled=stale,
+            ):
+                # This panel renders before the draft widget. Save its keyed
+                # state now, then send a fresh render to the browser immediately.
+                apply_ai_paragraph(claim_id, claim.get("letter", ""))
+                st.rerun()
             if error := st.session_state.get(f"ai_insert_error_{claim_id}"):
                 st.error(error)
         st.caption(

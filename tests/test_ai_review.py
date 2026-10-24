@@ -258,6 +258,40 @@ class ReviewWorkflowTests(unittest.TestCase):
             self.assertEqual(approved["loss"], self.claim["loss"])
             generate.assert_called_once()
 
+    def test_simulated_insertion_is_immediate_persistent_and_claim_scoped(self):
+        import ai_panel
+        claim_id = self.claim["id"]
+        other = database.create_claim("Gombak Veggie WholeSale", 1, "Separate incident.")
+        original = self.path.read_bytes()
+        letter_key = f"letter_{claim_id}"
+        with patch.object(ai_panel, "generate_review", side_effect=ai_review.AIGatewayTimeout("HTTP 504")) as generate:
+            app = self.app()
+            app.text_area(key=letter_key).input("Keep my edits.\n\nBest regards,\nManager").run()
+            app.button(key=f"generate_ai_{claim_id}").click().run()
+            paragraph = app.session_state[f"ai_review_{claim_id}"]["claim_paragraph"]
+
+            app.button(key=f"insert_ai_{claim_id}").click().run()
+            inserted = app.text_area(key=letter_key).value
+            self.assertFalse(app.exception)
+            self.assertIn(paragraph, inserted)
+            self.assertIn("Keep my edits.", inserted)
+            self.assertEqual(app.session_state[letter_key], inserted)
+            self.assertEqual(app.text_area(key=f"letter_{other['id']}").value, other["letter"])
+
+            app.run()
+            self.assertEqual(app.text_area(key=letter_key).value, inserted)
+            app.text_input(key=f"signature_{claim_id}").input("Test Manager").run()
+            self.assertEqual(app.text_area(key=letter_key).value, inserted)
+            app.button(key=f"insert_ai_{claim_id}").click().run()
+            self.assertEqual(app.text_area(key=letter_key).value, inserted)
+            self.assertEqual(inserted.count(paragraph), 1)
+
+            app.text_area(key=letter_key).input(inserted + "\nManager follow-up.").run()
+            app.run()
+            self.assertEqual(app.text_area(key=letter_key).value, inserted + "\nManager follow-up.")
+            self.assertEqual(self.path.read_bytes(), original)
+            generate.assert_called_once()
+
     def test_live_success_replaces_simulation_provenance(self):
         import ai_panel
         claim_id = self.claim["id"]
