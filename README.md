@@ -37,8 +37,9 @@ recorded locally, no supplier email is sent and no external invoice is held.
 
 AI work is isolated on `feature-live-ai`; do not merge or publish it to `main`
 until reviewed. In **Review & authorize**, use **Generate AI Contextual Review**
-on the relevant pending incident. Gemini `gemini-2.5-flash` returns a contextual
+on the relevant pending incident. Gemini `gemini-flash-latest` returns a contextual
 risk assessment, urgency, recommendation, and suggested claim paragraph.
+This alias follows Google's current Flash model; its resolved version can change.
 **Insert AI paragraph into draft** preserves existing edits. Review the final
 letter, then use the existing manager signature and authorization action.
 
@@ -60,6 +61,8 @@ The provider schema deliberately uses only object/string/enum/required constrain
 for Gemini compatibility; strict length and extra-field checks still run locally.
 If Google reports that a model is no longer available, do not retry it repeatedly
 or silently substitute another model. Agree on the replacement first.
+Requests have a 60-second deadline and no automatic retry; a gateway timeout is
+shown explicitly, with the existing draft and database left untouched.
 The manager menu groups are workflow separation, not authentication or access
 control. The former Node server and `/api` endpoints are no longer used.
 

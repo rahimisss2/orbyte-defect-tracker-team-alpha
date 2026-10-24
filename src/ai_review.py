@@ -12,7 +12,7 @@ from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
 from database import amount, summarize
 
-MODEL = "gemini-2.5-flash"
+MODEL = "gemini-flash-latest"
 
 
 class AIReviewError(Exception):
@@ -94,7 +94,7 @@ def generate_review(context):
         with genai.Client(
             api_key=key,
             http_options=types.HttpOptions(
-                timeout=20_000, retry_options=types.HttpRetryOptions(attempts=1),
+                timeout=60_000, retry_options=types.HttpRetryOptions(attempts=1),
             ),
         ) as client:
             response = client.models.generate_content(
@@ -133,6 +133,16 @@ def generate_review(context):
         raise AIReviewError(
             "Google rejected the review request. Check model availability, API permissions "
             "and quota. Your draft and claim are unchanged."
+        ) from None
+    except errors.ServerError as error:
+        if error.code == 504:
+            raise AIReviewError(
+                "The Gemini request timed out (HTTP 504). Try again later. "
+                "Your draft and claim are unchanged."
+            ) from None
+        raise AIReviewError(
+            "The Gemini service could not complete the request. Try again later. "
+            "Your draft and claim are unchanged."
         ) from None
     except Exception:
         # Provider exceptions may include request URLs, keys or incident text.
